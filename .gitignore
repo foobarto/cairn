@@ -1,0 +1,11 @@
+# macOS / Linux metadata
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editor workspaces
+.idea/
+.vscode/
+*.code-workspace
