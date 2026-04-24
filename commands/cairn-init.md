@@ -13,13 +13,17 @@ are left alone; new ones are created from templates.
 
 Relative to the current project root:
 
-| Path                           | Source                                     |
-|--------------------------------|--------------------------------------------|
-| `docs/sessions/`               | new directory                              |
-| `docs/sessions/README.md`      | short pointer to the template              |
-| `docs/todo.md`                 | `cairn/templates/todo.md`                  |
-| `docs/workflow/six-phase-checklist.md` | `cairn/templates/workflow/six-phase-checklist.md` |
-| `docs/workflow/autonomous-round-protocol.md` | `cairn/templates/workflow/autonomous-round-protocol.md` |
+| Path                                    | Source                                              |
+|-----------------------------------------|-----------------------------------------------------|
+| `docs/sessions/`                        | new directory                                       |
+| `docs/sessions/README.md`               | short pointer to the template                       |
+| `docs/todo.md`                          | `cairn/templates/todo.md`                           |
+| `docs/project-profile.md`               | `cairn/templates/project-profile.md`                |
+| `docs/workflow/governing-principles.md` | `cairn/templates/workflow/governing-principles.md`  |
+| `docs/workflow/six-phase-checklist.md`  | `cairn/templates/workflow/six-phase-checklist.md`   |
+| `docs/workflow/autonomous-protocol.md`  | `cairn/templates/workflow/autonomous-protocol.md`   |
+
+Plus one **interactive prompt** for the user-profile location.
 
 ## CLAUDE.md handling
 
@@ -28,9 +32,46 @@ If no `CLAUDE.md` exists at the project root: drop
 the "Project-specific notes" section at the bottom.
 
 If `CLAUDE.md` already exists: **do not overwrite.** Instead,
-offer to append the "Session rhythm" and "Autonomous-round
-cadence" sections from the template, preserving the user's
-existing content above them. Ask before appending.
+offer to append the "Governing principles," "Session rhythm,"
+and "Autonomous-round cadence" sections from the template,
+preserving the user's existing content above them. Ask before
+appending.
+
+## User-profile location prompt
+
+The user profile is cairn's synthesis of *how the user thinks*
+across projects. Before scaffolding, ask where it should live:
+
+```
+Where should cairn keep your user profile?
+
+  [1] Global (recommended) — ~/.config/cairn/user-profile.md
+      One profile across all your cairn projects. Private to you.
+  [2] Project-local, gitignored — .cairn/user-profile.md
+      Per-project, not shared with collaborators.
+  [3] Project-local, tracked — docs/user-profiles/<handle>.md
+      Per-project, shared with collaborators (handle = git user).
+  [4] Skip — no profile feature.
+
+Pick [1/2/3/4] (default: 1):
+```
+
+Record the choice:
+
+- **Option 1 (global):** create `~/.config/cairn/user-profile.md`
+  from template if missing. No per-project config needed.
+- **Option 2 (local, gitignored):** create
+  `<project>/.cairn/user-profile.md` from template. Add
+  `/.cairn/` to the project's `.gitignore` (ask before editing).
+  Write `<project>/.cairn/config.json` with
+  `{"user_profile_path": ".cairn/user-profile.md"}`.
+- **Option 3 (local, tracked):** resolve `<handle>` from `git
+  config user.name` (fall back to `$USER`). Create
+  `<project>/docs/user-profiles/<handle>.md` from template.
+  Write `<project>/.cairn/config.json` with
+  `{"user_profile_path": "docs/user-profiles/<handle>.md"}`.
+- **Option 4 (skip):** do not create the profile file or
+  config.
 
 ## Steps
 
@@ -52,7 +93,9 @@ cairn initialised.
   ✓ docs/sessions/ (created)
   ✓ docs/todo.md (created from template)
   ✓ docs/workflow/six-phase-checklist.md (created)
-  ✓ docs/workflow/autonomous-round-protocol.md (created)
+  ✓ docs/workflow/autonomous-protocol.md (created)
+  ✓ docs/workflow/governing-principles.md (created)
+  ✓ docs/project-profile.md (created)
   · CLAUDE.md (already exists; appended Session rhythm + Autonomous-round cadence sections)
 
 Next: customise docs/todo.md and CLAUDE.md's "Project-specific

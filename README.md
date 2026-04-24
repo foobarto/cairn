@@ -104,9 +104,10 @@ cd /your/project
 Then inside Claude Code:
 
 ```
-/cairn-session          Open or append to today's session log
-/cairn-round            Start an autonomous-round cycle
-/cairn-init             Scaffold into an existing project (same as install.sh)
+/cairn-init        Scaffold into the current project (same as install.sh)
+/cairn-session     Open or append to today's session log
+/cairn-round       One autonomous cycle, stop when done
+/cairn-loop        Repeated cycles until a stop criterion is met
 ```
 
 ## Quickstart (other CLIs)
@@ -130,22 +131,32 @@ The templates, skills, and workflow docs are portable.
 cairn/
 ├── .claude-plugin/plugin.json    Claude Code plugin manifest
 ├── commands/                     Claude Code slash commands
-│   ├── cairn-init.md
-│   ├── cairn-session.md
-│   └── cairn-round.md
-├── skills/                       Claude Code skills (Q&A helpers)
+│   ├── cairn-init.md             Scaffold into a project
+│   ├── cairn-session.md          Open or append today's journal
+│   ├── cairn-round.md            One autonomous cycle
+│   └── cairn-loop.md             Repeating cycles
+├── skills/                       Claude Code skills
 │   ├── session-log/SKILL.md
 │   ├── autonomous-round/SKILL.md
+│   ├── autonomous-loop/SKILL.md
+│   ├── review-phase/SKILL.md     Quality + security pass orchestrator
+│   ├── build-user-profile/SKILL.md
+│   ├── build-project-profile/SKILL.md
 │   └── close-session/SKILL.md
 ├── agents/                       Claude Code sub-agents
-│   └── prior-session-digest.md
+│   ├── prior-session-digest.md   Compress recent journals → ~800 words
+│   ├── autonomous-planner.md     Recommend next bounded task
+│   └── review-runner.md          Run detected review tools in parallel
 ├── templates/                    CLI-agnostic project templates
 │   ├── CLAUDE.md                 Copied into target projects
 │   ├── session-template.md
 │   ├── todo.md
+│   ├── user-profile.md           Global user profile (synthesis)
+│   ├── project-profile.md        Per-project stances (declarative)
 │   └── workflow/
+│       ├── governing-principles.md
 │       ├── six-phase-checklist.md
-│       └── autonomous-round-protocol.md
+│       └── autonomous-protocol.md    (covers round + loop)
 ├── docs/
 │   ├── workflow.md               The full picture
 │   ├── for-claude-code.md        CLI adapter: Claude Code

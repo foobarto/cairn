@@ -39,20 +39,21 @@ them easier.
    closed, not until you *feel* done.
 
 These are load-bearing. The session rhythm, six-phase
-checklist, autonomous-round protocol, and review phase are all
+checklist, autonomous protocol, and review phase are all
 shapes that make these four easier to honour. When any shape
 conflicts with a principle, the principle wins.
 
 ## Session rhythm
 
-This project uses **cairn** to structure AI-agent sessions. Four
-artefacts you should touch every working session:
+This project uses **cairn** to structure AI-agent sessions.
+Artefacts you should touch every working session:
 
 | When                                       | Update                                                |
 |--------------------------------------------|-------------------------------------------------------|
-| Session start                              | Read today's `docs/sessions/<date>-<topic>.md` if any |
+| Session start                              | Read today's `docs/sessions/<date>-<topic>.md` if any + `docs/project-profile.md` for stance + user profile for collaboration calibration |
 | As you work                                | Append to today's `docs/sessions/<date>-<topic>.md`   |
 | When you notice something worth tracking   | `docs/todo.md` under the appropriate priority tier    |
+| When a stance settles                      | `docs/project-profile.md` (project-wide) / user profile (personal) |
 | When you finish a feature                  | Every doc the change affects (see six-phase checklist)|
 
 ### Session journal (`docs/sessions/<date>-<topic>.md`)
@@ -138,30 +139,46 @@ Every non-trivial feature moves through six phases in order:
 Bug fixes, doc tweaks, and dep bumps collapse 1–2 (no proposal)
 but still move through 3–6.
 
-### Autonomous-round cadence
+### Autonomous work — round vs loop
 
-When running unattended (user said "continue autonomously" or
-similar), follow the
-[autonomous-round protocol](workflow/autonomous-round-protocol.md):
+When running unattended, pick the shape that matches the ask:
 
-1. Pick ONE bounded task from `docs/todo.md`. Bounded = you can
-   finish it, gate it, and commit it in one turn.
-2. Log the task pick and the design calls you take without asking
-   in the session journal.
-3. Gate (tests, lint, format, build) before claiming done.
-4. Commit locally. Do NOT push unless the user has explicitly
-   authorised pushes in their instructions.
-5. Schedule the next wakeup if there's more to do; otherwise
-   stop and write the handoff summary.
+- **Round** — one bounded cycle, stop when done. Triggered by
+  "do one task from the punch list", "finish the Kanban refactor
+  autonomously", etc. See `cairn-autonomous-round` skill.
+- **Loop** — repeating rounds until a stop criterion. Triggered
+  by "keep going", "run overnight", "loop through P1". See
+  `cairn-autonomous-loop` skill.
 
-Never:
+Full substance in
+[`docs/workflow/autonomous-protocol.md`](workflow/autonomous-protocol.md) —
+covers autonomy levels (L0–L4, default L2), task-pick rules,
+gate requirements, commit checkpoints (3-commit soft pause,
+5-commit hard stop in loop mode), and hard rules.
 
-- Start implementation work on a proposal still in Draft without
-  the user's explicit green-light.
-- Push to a remote without explicit authorisation.
-- Force-push or rewrite commits visible to others.
-- Start a new "round" if the current one hit an unresolved
-  blocker — surface the blocker and wait.
+First step of every round/loop: **calibrate the autonomy
+level**. L2 is the default (finish in-progress partials; don't
+start greenfield work autonomously; no status promotions; no
+pushes). The project profile's risk tolerance can cap the
+menu below the user's global preference.
+
+Hard rules (always, every level):
+
+- No pushes unless L4 + explicit authorisation.
+- No force-pushes or rewriting shared history.
+- No bypassing safety gates (`--no-verify`, `--no-gpg-sign`).
+- No deleting unfamiliar files/branches.
+- No messages to chat/ticket systems without authorisation.
+- One task per turn.
+
+### Review phase (always quality + security)
+
+Phase 5 of the six-phase checklist requires both a **quality
+pass** (project gate + linter) and a **security pass** (SAST
+tool if available, manual OWASP review otherwise). Neither is
+optional. If cairn's `cairn-review-phase` skill is available
+it orchestrates both with tool detection + a
+`review-runner` sub-agent.
 
 ## Proposals via ep-kit
 

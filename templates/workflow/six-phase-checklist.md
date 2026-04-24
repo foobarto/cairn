@@ -73,22 +73,69 @@ block. Do not claim done before this.
 
 ## Phase 5 — Review
 
-Two reviewers, in order:
+Three passes, in order. **Quality and security are both
+mandatory**; second opinion is expected on non-trivial changes
+but optional for small diffs.
 
-1. **Self-review.** Read the diff as if you're seeing it for the
-   first time. Look for:
-   - Scope creep (unrelated changes sneaking in).
-   - Dead variables / unused imports / stale comments.
-   - Comments explaining *what* instead of *why*.
-   - Missing docstrings on public API.
-   - Gate failures you glossed over.
-2. **Second opinion.** Another person (or agent like codex,
-   GEP-style reviewer, etc.). The goal is catching what you
-   couldn't see yourself — assumptions you made, edge cases you
-   missed, phrasing that reads differently to a fresh eye.
+### 5a. Self-review
 
-Apply must-fix feedback inline. Log nice-to-haves to the session
-journal.
+Read the diff as if you're seeing it for the first time. Look
+for:
+
+- Scope creep (unrelated changes sneaking in).
+- Dead variables / unused imports / stale comments.
+- Comments explaining *what* instead of *why*.
+- Missing docstrings on public API.
+- Gate failures you glossed over.
+
+### 5b. Quality pass (mandatory)
+
+Run the project's canonical gate (`mix precommit`, `pnpm run
+check`, `cargo clippy --all-targets`, `just check`, etc.) and
+any language-specific linter detected for the changed files.
+
+Record tool + command + result in the session journal:
+
+```markdown
+**Quality:**
+- `mix precommit` — clean (exit 0).
+- `mix credo --strict` — 0 issues (exit 0 explicitly verified).
+```
+
+### 5c. Security pass (mandatory)
+
+Never skip. Two paths:
+
+- **Tool-based:** Run detected SAST (`semgrep`, `bandit`,
+  `gitleaks`, etc.). If `security-kit` or similar orchestrator
+  is installed, use it.
+- **Manual fallback** (when no tool is available): Read the
+  diff explicitly against OWASP Top 10, secret handling,
+  authz/authn boundaries, input validation at system edges,
+  dependency risk. Document in the journal.
+
+Record in the journal. Any high/critical finding is a blocker
+— do not proceed to phase 6 until resolved.
+
+### 5d. Second opinion (optional for small changes)
+
+For non-trivial changes (new modules, API contracts, security-
+adjacent code, >~200 lines across 2+ files): dispatch a
+second-opinion reviewer — another person, `codex exec`, or a
+specialised code-review agent.
+
+For small diffs (bug fixes under ~50 lines, doc changes, dep
+bumps): skip and note the skip with reason.
+
+Apply must-fix feedback inline. Log nice-to-haves to the
+session journal.
+
+### If cairn's `review-phase` skill is available
+
+It orchestrates 5b-5d automatically: tool detection, plan
+proposal, invocation of the `review-runner` sub-agent, summary
+into the journal. Use it as the default entry point for phase
+5 instead of driving these passes manually.
 
 ## Phase 6 — Ship
 

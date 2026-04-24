@@ -18,27 +18,27 @@ invocation.
 
 ## Steps (at a glance)
 
-1. **Check for user input** since the last wakeup. If there is
-   any, abandon the round and address the message.
-2. **Verify the working tree is clean** and `docs/todo.md`
-   exists. If not, stop and ask.
-3. **Pick one bounded task** from `docs/todo.md` (P1 first, P2
-   second). Criteria: you can finish in one turn, no open design
-   decisions block the path, low blast radius.
-4. **Announce the pick** in today's session journal (one
-   sentence: *Picked X because Y.*). Auto-create today's journal
-   if missing.
-5. **Implement.** Log design calls you take without asking to
-   the journal as you make them.
-6. **Gate.** Run the project's tests, linter, formatter,
-   precommit checks. Record results in the journal.
-7. **Commit locally** (never push unless authorised). Use
-   conventional-commit style. Reference the task you picked.
-8. **Check commit count for the session.** If this is the third
-   commit (soft cap) or fifth (hard stop), **stop** and write
-   the handoff — don't schedule another wakeup.
-9. **Otherwise:** schedule the next wakeup (20-60 min cadence
-   for open-ended rounds).
+Per the autonomous protocol:
+
+1. **Check for user input** since the triggering message. If
+   present, abandon the round.
+2. **Calibrate autonomy level** (L0–L4, default L2). If
+   cached from an earlier round in the same session, reuse.
+3. **Verify prerequisites** — clean tree, journal exists or
+   creatable, `docs/todo.md` exists.
+4. **Pick one bounded task.** Dispatch `autonomous-planner`
+   sub-agent if available; else scan `docs/todo.md` directly
+   per the autonomy level's rules.
+5. **Announce the pick** in today's session journal with the
+   autonomy level.
+6. **Implement.** Log design calls as taken.
+7. **Gate.** Via `review-phase` skill if available (quality +
+   security both mandatory); else run the project's tests,
+   linter, formatter manually.
+8. **Commit locally** (never push unless L4 + authorised).
+9. **Write the handoff summary and stop.** Do NOT schedule a
+   next wakeup — this command is single-cycle only. For
+   repeating cycles, use `/cairn-loop`.
 
 ## Hard rules (ALWAYS)
 

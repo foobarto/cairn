@@ -61,7 +61,8 @@ the skills become instructions-by-reference.
 
 - **Templates** — CLAUDE.md-equivalent (rename to GEMINI.md),
   session-template, todo.md, six-phase-checklist,
-  autonomous-round-protocol. Pure markdown, works anywhere.
+  autonomous-protocol (covers round + loop), governing-principles,
+  user-profile + project-profile. Pure markdown, works anywhere.
 - **Skill substance.** The actual guidance in `SKILL.md` is
   portable Gemini CLI will happily read and follow it — you
   just need to tell it to.

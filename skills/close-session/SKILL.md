@@ -78,17 +78,29 @@ Write (or check) these sections:
   round's handoff block is intact — don't delete them during
   consolidation.
 
-### 5. Save durable memory (if your CLI supports it)
+### 5. Update profiles (if new signal this session)
 
-Save as memory:
+Two profiles — user (global, personal) and project (per-project,
+shared):
 
-- **User preferences** revealed during the session (coding
-  style, tool choices, review rituals, keybinding preferences,
-  licensing defaults).
-- **Feedback on the agent's approach** — things the user
-  corrected or confirmed, with the *why*.
-- **Project-specific gotchas** that would silently mis-advise a
-  future session.
+- **User profile** (via `cairn-build-user-profile` skill):
+  Scan today's journal for durable observations about *how the
+  user thinks* — decision patterns, design values, collaboration
+  posture. Only add observations with evidence (a concrete
+  session reference or quote). If ≥5 observations have been
+  added since last synthesis, re-read and consolidate; don't
+  just append.
+- **Project profile** (via `cairn-build-project-profile` skill):
+  If a session settled a project-wide stance (risk tolerance,
+  security posture, quality bar, contribution norm), update
+  `docs/project-profile.md` as part of the close-out commit so
+  it rides with the shipping PR.
+
+If your CLI also has a memory system (e.g. Claude Code's
+`~/.claude/projects/<slug>/memory/`), save individual preference
+memories there in addition to the user-profile synthesis —
+single-observation memories are cheap to reference and the
+user-profile is the rollup.
 
 Do NOT save:
 
@@ -96,6 +108,7 @@ Do NOT save:
 - Architectural facts derivable from the code (the code carries
   it).
 - Hot opinions without a *why*.
+- Frustration, impatience, or emotional reactions.
 
 ### 6. Commit the doc changes
 

@@ -20,7 +20,8 @@ your-project/
     ├── todo.md                   Rolling punch list (P0-P3 tiers)
     ├── workflow/
     │   ├── six-phase-checklist.md
-    │   └── autonomous-round-protocol.md
+    │   ├── governing-principles.md
+    │   └── autonomous-protocol.md
     └── eps/                      (optional — ep-kit territory)
         ├── 0001-ep-purpose-and-guidelines.md
         └── 0002-...
@@ -93,12 +94,14 @@ Plan → Build → Test → Review → Ship**. Ship means the code AND
 every doc that should reflect the change have been updated in
 the same session.
 
-### docs/workflow/autonomous-round-protocol.md
+### docs/workflow/autonomous-protocol.md
 
-Reference for unattended work. Covers: how to pick a task, hard
-rules (no pushes, no force-pushes, no Draft-proposal
-implementation), and stop criteria (blocker, empty pool, commit
-cap, user message arrived).
+Reference for unattended work (covers both round and loop
+modes). Autonomy levels (L0–L4, default L2), task-pick rules,
+gate requirements, commit checkpoints (3-commit soft pause /
+5-commit hard stop for loops), hard rules (no pushes without
+authorisation, no force-pushes, no Draft-proposal
+implementation below L2, etc.), and stop criteria.
 
 ### docs/eps/ (optional, via ep-kit)
 
