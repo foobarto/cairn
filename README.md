@@ -36,7 +36,23 @@ development workflow:
 5. **CLAUDE.md / AGENTS.md / GEMINI.md template** — project-level
    instructions that wire the above into whichever CLI you use.
 
-cairn does NOT include:
+## Governing principles (backbone)
+
+cairn's four governing principles — adapted from
+[Karpathy's guidelines](https://karpathy.bearblog.dev/dev/) — are
+the backbone that every artefact is shaped around:
+
+1. **Think before coding.** Surface assumptions and tradeoffs.
+2. **Simplicity first.** Minimum that solves the problem.
+3. **Surgical changes.** Touch only what you must.
+4. **Goal-driven execution.** Define success concretely; loop
+   until verified.
+
+These override the shapes: if a template, skill, or command
+conflicts with a principle, the principle wins. Full text at
+[templates/workflow/governing-principles.md](templates/workflow/governing-principles.md).
+
+## What cairn does NOT include
 
 - **Proposals with decision logs** — that's [ep-kit](../ep-kit/)'s
   job. cairn's templates reference ep-kit; the two are designed to

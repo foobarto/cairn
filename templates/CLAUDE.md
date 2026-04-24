@@ -16,6 +16,33 @@ Guidance for Claude Code (and other LLM assistants) working in
 this repository. Kept deliberately short; project-specific detail
 lives in `docs/`.
 
+## Governing principles (the backbone)
+
+Four principles, adapted from
+[Karpathy's guidelines](https://karpathy.bearblog.dev/dev/),
+that override the "move fast" impulse. Full text at
+[docs/workflow/governing-principles.md](docs/workflow/governing-principles.md);
+every other artefact in this repo is shaped to make following
+them easier.
+
+1. **Think before coding.** State assumptions, surface
+   tradeoffs. When a request has multiple interpretations,
+   pick one visibly — don't silently choose.
+2. **Simplicity first.** Minimum that solves the problem.
+   No speculative abstractions, no unrequested configurability,
+   no defensive handling for impossible scenarios.
+3. **Surgical changes.** Touch only what you must. Preserve
+   existing style. Every changed line should trace to the
+   user's request.
+4. **Goal-driven execution.** Define success concretely before
+   implementing. Loop until the test passes / the diff is
+   closed, not until you *feel* done.
+
+These are load-bearing. The session rhythm, six-phase
+checklist, autonomous-round protocol, and review phase are all
+shapes that make these four easier to honour. When any shape
+conflicts with a principle, the principle wins.
+
 ## Session rhythm
 
 This project uses **cairn** to structure AI-agent sessions. Four
@@ -147,23 +174,6 @@ Touch a proposal when the change affects a public contract,
 on-disk layout, CLI surface, load-bearing invariant, or any
 "should we do X or Y?" question that isn't obvious from the code.
 Skip it for bug fixes, contained refactors, and dep bumps.
-
-## Coding discipline
-
-These override the "move fast" impulse:
-
-1. **Think before coding.** State assumptions, surface tradeoffs.
-   When a request has multiple interpretations, pick one visibly —
-   don't silently choose.
-2. **Simplicity first.** Minimum code that solves the problem. No
-   speculative abstractions, no unrequested configurability, no
-   defensive handling for impossible scenarios.
-3. **Surgical changes.** Touch only what you must. Preserve
-   existing style. Don't rename / reformat / "improve" unrelated
-   sections while passing through.
-4. **Goal-driven execution.** Define success concretely before
-   implementing. Loop until the test passes / the diff is closed,
-   not until you feel done.
 
 ## Project-specific notes
 

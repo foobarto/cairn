@@ -4,6 +4,12 @@ Every non-trivial feature moves through these six phases, in
 order. Skipping phases is how you get to a half-shipped feature
 three times in a row.
 
+**Read first:**
+[docs/workflow/governing-principles.md](governing-principles.md).
+The six phases are *when*; the four principles are *how within
+each phase*. Ticking phases mechanically without applying the
+principles is the failure mode this doc is designed to prevent.
+
 | # | Phase      | Artefact                                            |
 |---|------------|-----------------------------------------------------|
 | 1 | **Spec**   | Proposal draft (via ep-kit, in `docs/eps/` or the equivalent) |
