@@ -4,7 +4,7 @@ All notable changes to cairn will be recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — v0.2.0 in progress
+## [v0.2.0] — 2026-04-25
 
 ### Added
 
