@@ -60,34 +60,47 @@ def parse_frontmatter(path: pathlib.Path):
 
 
 def validate_file(path, required, needs_slug_name):
+    """Validate one artefact. ``path`` is absolute (read from it); messages
+    are reported with the repo-relative path so output is stable regardless
+    of the caller's working directory."""
     errors: list[str] = []
     warnings: list[str] = []
+    rel = path.relative_to(ROOT)
 
     meta, err = parse_frontmatter(path)
     if err:
-        errors.append(f"{path}: {err}")
+        errors.append(f"{rel}: {err}")
         return errors, warnings
 
     missing = required - set(meta.keys())
     if missing:
-        errors.append(f"{path}: missing required field(s): {sorted(missing)}")
+        errors.append(f"{rel}: missing required field(s): {sorted(missing)}")
 
-    name = meta.get("name")
-    if needs_slug_name and isinstance(name, str) and not SLUG_RE.match(name):
-        errors.append(f"{path}: name {name!r} must match [a-z][a-z0-9-]*")
+    # A present `name` must be a string slug when the artefact type requires
+    # one. A non-string scalar (e.g. `name: 123` or `name: true`) otherwise
+    # satisfies the required-field check and skips slug validation, so reject
+    # it explicitly.
+    if needs_slug_name and "name" in meta:
+        name = meta["name"]
+        if not isinstance(name, str):
+            errors.append(
+                f"{rel}: name must be a string slug, got {type(name).__name__}"
+            )
+        elif not SLUG_RE.match(name):
+            errors.append(f"{rel}: name {name!r} must match [a-z][a-z0-9-]*")
 
     if "description" in meta:
         desc = meta["description"]
         if not isinstance(desc, str):
-            warnings.append(f"{path}: description is not a string")
+            warnings.append(f"{rel}: description is not a string")
         elif len(desc) < DESC_MIN:
             warnings.append(
-                f"{path}: description is short ({len(desc)} chars); "
+                f"{rel}: description is short ({len(desc)} chars); "
                 "should explain when to use it"
             )
         elif len(desc) > DESC_MAX:
             warnings.append(
-                f"{path}: description is {len(desc)} chars; "
+                f"{rel}: description is {len(desc)} chars; "
                 f"Claude Code truncates at ~{DESC_MAX}"
             )
 
@@ -102,9 +115,7 @@ def main() -> int:
     for glob, required, needs_slug in SPECS:
         for path in sorted(ROOT.glob(glob)):
             count += 1
-            errors, warnings = validate_file(
-                path.relative_to(ROOT), required, needs_slug
-            )
+            errors, warnings = validate_file(path, required, needs_slug)
             all_errors += errors
             all_warnings += warnings
 

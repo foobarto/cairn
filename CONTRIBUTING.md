@@ -77,7 +77,7 @@ before opening a PR:
 python3 scripts/validate_frontmatter.py            # skill/command/agent frontmatter
 python3 -m json.tool .claude-plugin/plugin.json > /dev/null      # manifest valid?
 python3 -m json.tool .claude-plugin/marketplace.json > /dev/null # manifest valid?
-shellcheck install.sh                              # shell lint
+shellcheck --severity=warning install.sh           # shell lint (matches CI)
 ```
 
 `validate_frontmatter.py` needs PyYAML (`pip install pyyaml`).
