@@ -196,7 +196,7 @@ cairn/
 
 cairn ships no runtime code, but the plugin manifests, skill/command/agent
 frontmatter, and `install.sh` are linted in CI (`.github/workflows/lint.yml`)
-on every push and pull request. Run the same checks locally:
+on pull requests and pushes to `main`. Run the same checks locally:
 
 ```sh
 python3 scripts/validate_frontmatter.py            # skill/command/agent frontmatter
