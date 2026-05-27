@@ -187,6 +187,7 @@ cairn/
 │   └── validate_frontmatter.py   Frontmatter linter (run in CI)
 ├── examples/                     Sample session logs etc.
 ├── CHANGELOG.md
+├── CONTRIBUTING.md               How to add skills/commands/agents
 ├── LICENSE-MIT, LICENSE-APACHE   Dual-licensed: MIT OR Apache-2.0
 └── README.md                     This file
 ```
