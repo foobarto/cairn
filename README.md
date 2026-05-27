@@ -85,20 +85,36 @@ shared context makes future sessions more productive.
 
 ## Quickstart (Claude Code)
 
-```bash
-# One-time: install cairn into your Claude Code plugin directory.
-# (If you cloned this repo directly, add it as a plugin instead.)
-mkdir -p ~/.claude/plugins/user/
-cp -r /path/to/cairn ~/.claude/plugins/user/
+**One-time: install the plugin.** cairn ships as a self-contained
+plugin marketplace, so installation is two slash commands run
+inside Claude Code:
 
-# Per-project: scaffold the workflow into a project directory.
+```
+/plugin marketplace add foobarto/cairn
+/plugin install cairn@cairn
+```
+
+(Developing against a local clone instead? Launch Claude Code with
+`claude --plugin-dir /path/to/cairn`. Copying the repo into
+`~/.claude/plugins/` by hand does **not** work — Claude Code only
+discovers plugins through a marketplace or `--plugin-dir`.)
+
+**Per-project: scaffold the workflow.** If you installed the plugin,
+run `/cairn-init` from inside the project. If you have a local clone,
+`install.sh` does the same thing from the shell:
+
+```bash
 cd /your/project
 /path/to/cairn/install.sh
 
-# This creates:
-#   docs/sessions/          (where session journals live)
+# This creates (existing files are skipped, never overwritten):
+#   docs/sessions/          (session journals live here)
 #   docs/todo.md            (the rolling punch list)
-#   CLAUDE.md               (or merges into an existing one)
+#   docs/project-profile.md (per-project stances)
+#   docs/workflow/          (principles, six-phase checklist, autonomous protocol)
+#   CLAUDE.md               (skipped if one already exists — use
+#                            /cairn-init to merge into an existing file)
+#   a user profile          (location chosen via prompt; see install.sh --help)
 ```
 
 Then inside Claude Code:
@@ -129,7 +145,9 @@ The templates, skills, and workflow docs are portable.
 
 ```
 cairn/
-├── .claude-plugin/plugin.json    Claude Code plugin manifest
+├── .claude-plugin/
+│   ├── plugin.json               Claude Code plugin manifest
+│   └── marketplace.json          Single-plugin marketplace catalog
 ├── commands/                     Claude Code slash commands
 │   ├── cairn-init.md             Scaffold into a project
 │   ├── cairn-session.md          Open or append today's journal

@@ -4,8 +4,9 @@
   This file is a *template* shipped by cairn. It gets copied into
   target projects as-is and then locally customised. If the target
   project has no CLAUDE.md, install.sh drops this in. If one
-  exists, install.sh appends the "Session rhythm" section only —
-  it does not overwrite.
+  already exists, install.sh leaves it untouched (reports it
+  "skipped") — run the /cairn-init slash command instead to merge
+  cairn's sections into an existing CLAUDE.md.
 
   Equivalent files for other CLIs: AGENTS.md (Codex CLI),
   GEMINI.md (Gemini CLI). The substance is identical; rename as

@@ -28,7 +28,7 @@ TARGET=""
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 usage() {
-    sed -n '3,/^$/s/^# \?//p' "$0"
+    sed -n '2,/^$/s/^# \?//p' "$0"
     exit 0
 }
 

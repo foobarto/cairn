@@ -1,0 +1,17 @@
+{
+  "name": "cairn",
+  "owner": {
+    "name": "Bartosz Ptaszynski",
+    "email": "bartosz@foobarto.me"
+  },
+  "metadata": {
+    "description": "Workflow kit for AI-assisted software projects — session journals, rolling todo punch list, autonomous-round cadence, and six-phase feature checklist."
+  },
+  "plugins": [
+    {
+      "name": "cairn",
+      "source": "./",
+      "description": "Session journals, rolling todo punch list, autonomous-round cadence, six-phase feature checklist, and a review phase. Pairs with ep-kit for structured proposals."
+    }
+  ]
+}
