@@ -148,6 +148,7 @@ cairn/
 ├── .claude-plugin/
 │   ├── plugin.json               Claude Code plugin manifest
 │   └── marketplace.json          Single-plugin marketplace catalog
+├── .github/workflows/lint.yml    CI: frontmatter + manifests + shellcheck
 ├── commands/                     Claude Code slash commands
 │   ├── cairn-init.md             Scaffold into a project
 │   ├── cairn-session.md          Open or append today's journal
@@ -182,10 +183,26 @@ cairn/
 │   ├── for-codex-cli.md          CLI adapter: Codex CLI
 │   └── for-opencode.md           CLI adapter: opencode
 ├── install.sh                    Per-project scaffolder
+├── scripts/
+│   └── validate_frontmatter.py   Frontmatter linter (run in CI)
 ├── examples/                     Sample session logs etc.
 ├── CHANGELOG.md
-├── LICENSE                       Apache-2.0
+├── CONTRIBUTING.md               How to add skills/commands/agents
+├── LICENSE-MIT, LICENSE-APACHE   Dual-licensed: MIT OR Apache-2.0
 └── README.md                     This file
+```
+
+## Development
+
+cairn ships no runtime code, but the plugin manifests, skill/command/agent
+frontmatter, and `install.sh` are linted in CI (`.github/workflows/lint.yml`)
+on pull requests and pushes to `main`. Run the same checks locally:
+
+```sh
+python3 scripts/validate_frontmatter.py            # skill/command/agent frontmatter
+python3 -m json.tool .claude-plugin/plugin.json > /dev/null      # manifest valid?
+python3 -m json.tool .claude-plugin/marketplace.json > /dev/null # manifest valid?
+shellcheck --severity=warning install.sh           # shell lint (matches CI)
 ```
 
 ## Companion projects
