@@ -19,9 +19,9 @@ a change is updated in the same PR (the six-phase checklist's "Ship" bar).
 
 | Artefact            | Path                  | Frontmatter |
 |---------------------|-----------------------|-------------|
-| Skills              | `skills/<name>/SKILL.md` | `name` (slug), `version`, `description` |
-| Slash commands      | `commands/<name>.md`     | `description`, `allowed-tools` (name = filename) |
-| Sub-agents          | `agents/<name>.md`       | `name` (slug), `description`, `tools` |
+| Skills              | `skills/<name>/SKILL.md` | required: `name` (slug), `description`; optional: `version` |
+| Slash commands      | `commands/<name>.md`     | required: `description`; optional: `allowed-tools` (name = filename) |
+| Sub-agents          | `agents/<name>.md`       | required: `name` (slug), `description`; optional: `tools` |
 | Project templates   | `templates/`             | — copied into target projects by `install.sh` |
 | Workflow docs       | `templates/workflow/`    | — the protocol substance |
 | CLI adapter docs     | `docs/for-*.md`          | — per-CLI porting notes |
