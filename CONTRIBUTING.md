@@ -107,5 +107,6 @@ open a PR — CI runs on it and gates the merge.
 
 ## License
 
-By contributing you agree your work is dual-licensed under MIT OR Apache-2.0,
-matching the project (see the Contribution note in [README.md](./README.md)).
+By contributing you agree your work is dual-licensed under both MIT and
+Apache-2.0; recipients may choose either license. See the Contribution note in
+[README.md](./README.md).
