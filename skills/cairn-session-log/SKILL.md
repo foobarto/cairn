@@ -1,7 +1,8 @@
 ---
 name: cairn-session-log
-version: 0.1.0
-description: Use when the user wants to start, append to, or close a cairn session log (the detailed runtime journal under `docs/sessions/<date>-<topic>.md`). Triggers on phrases like "open today's session log", "append to the session journal", "log this decision", "close the session", or any pause at a natural commit seam where the session journal should capture what just happened. Also use when starting an autonomous round (create a new log file for this session before picking a task).
+description: Create or update a Cairn session journal under docs/sessions/ when the user requests session logging or an active Cairn round reaches a logging checkpoint. Do not rewrite journals into summaries or create logs for unrelated ordinary work.
+metadata:
+  version: "0.3.0"
 ---
 
 # cairn: Session log skill
@@ -18,18 +19,17 @@ sit between git history (too terse) and proposals (too formal).
 
 - User says "open the session log", "start a new session", "log
   this", "append to today's log", "close out the session", etc.
-- A natural commit seam has just happened (commit landed, wave
-  of work closed, user asked for a checkpoint).
+- During an explicitly active Cairn session, a natural seam has happened
+  (commit landed, wave of work closed, or the user asked for a checkpoint).
 - You're about to start an autonomous round and need to make
   sure today's log file exists before picking a task.
-- You're about to take a non-trivial design decision without
-  asking the user — the decision should land in the journal in
-  the same turn it's made.
+- During an explicitly active Cairn session, an adopted non-trivial design
+  decision needs a concise project-facing rationale.
 
 ## Do NOT use for
 
-- The user asking you to write a proposal (→ use the proposal
-  skill from ep-kit).
+- The user asking you to write a proposal (→ use Strata's
+  `ep-kit` proposal-authoring skill).
 - Updating the rolling punch list (`docs/todo.md`) — that's a
   different artefact with different conventions.
 - Retroactive session reconstruction from git log. Session
@@ -59,7 +59,8 @@ pivot with a clear `##` heading.
 
 ## Write-as-you-go, not retroactively
 
-Session journals are real-time narrative. Append to the file:
+Session journals are contemporaneous project records, not transcripts. Append
+concise facts to the file:
 
 - When you pick a task (start of a new `##` section).
 - When you take a design decision without asking the user.
@@ -68,9 +69,19 @@ Session journals are real-time narrative. Append to the file:
 - When you notice something worth flagging for user review.
 - When the round ends (write the handoff summary).
 
-Retroactive session reconstruction misses the decision moment —
-*what you considered and rejected*. That's the most valuable
-part of the log.
+Retroactive session reconstruction often loses reliable scope and evidence.
+If reconstruction is necessary, label it and record only facts supported by
+the available artifacts.
+
+## Publication hygiene
+
+Treat repository journals as shared, potentially public artifacts. Record
+adopted project-relevant decisions, concrete evidence, checks, scope changes,
+and useful unresolved questions. Do not persist credentials, tokens, private
+paths or host details, personal profiles, unrelated user context, transcript-
+like chain of thought, scratch methodology, or exploratory deliberation that
+was not adopted. Summarize the professional rationale needed by future
+contributors instead.
 
 ## Section shape
 
@@ -84,9 +95,11 @@ the log skimmable.
 
 **Task picked:** <one-line description>. <Why this one>.
 
+**Proposal:** <stable reference such as `EP-0017`, or `None`>.
+
 **What shipped:**
 
-- <concrete bullet>; reference [file path](path) or `file:line`.
+- <concrete bullet>; reference `path/to/file` or `file:line`.
 - <scope that changed mid-implementation — be honest>.
 
 **Design calls I made without you:**
@@ -105,7 +118,33 @@ the log skimmable.
 - <What you chose not to do, and why>.
 
 **Commit(s):** `<short-sha>` — `<commit subject>`.
+
+**Proposal reconciliation:** <`No proposal changes required`, or the assessed
+status/conformance work and any authorized validator result>.
 ```
+
+## Architectural-drift sensor
+
+The `Design calls I made without you` section is for implementation-local,
+reversible calls that preserve public behavior, persisted representation,
+trust boundaries, load-bearing invariants, and Accepted/Partial proposals.
+
+If a discovery crosses any of those boundaries, materially constrains future
+implementations, or conflicts with the governing proposal:
+
+1. record the discovery and evidence without duplicating architectural
+   alternatives or a Decision Log;
+2. stop implementation at that decision boundary;
+3. if `.ep-kit` exists, invoke `cairn-strata-interop` and Strata's current
+   governance workflow; otherwise ask how the project records durable design;
+4. resume only when the durable decision has implementation authority.
+
+If the sibling skill is unavailable, read `.ep-kit` directly as its public
+`key=value` contract (`dir` defaults to `docs/eps`) and follow the installed
+governance workflow. Stop on malformed configuration instead of guessing.
+
+Use Strata's stable references such as `EP-0017` and `EP-0017 D3`, including
+when the project calls proposals RFCs, GEPs, or something else.
 
 ## End-of-session handoff
 
@@ -130,20 +169,19 @@ question. "Should X live in module A or B? I picked A because
 If `docs/sessions/` doesn't exist:
 
 1. Create the directory.
-2. Drop a short `README.md` inside it linking to the cairn
-   repo's `templates/session-template.md`.
+2. Drop a short `README.md` inside it documenting the filename convention and
+   the section shape embedded in this skill.
 3. Create today's session file using the template shape above.
 
-Don't silently treat the missing directory as a signal that the
-project doesn't use cairn — ask the user if they want cairn
-initialised, or defer writing until they confirm.
+Create these files only when the user explicitly requested Cairn logging or an
+authorized Cairn round is active. Otherwise, a missing directory means stop and
+offer initialization rather than silently adopting Cairn.
 
 ## Working with the user on an active session
 
-- When the user tells you they value the session log format
-  explicitly — save that as a feedback memory if your CLI
-  supports it, so future sessions maintain the discipline
-  without being reminded.
+- A preference expressed while using this skill is not permission to update
+  the client's separate memory store. Do so only on an explicit memory-update
+  request or when standing instructions clearly authorize it.
 - When the user pivots topic mid-session, either (a) rename the
   existing file's topic slug if the new topic has fully
   replaced the old, or (b) create a second file for today. (a)

@@ -1,8 +1,13 @@
 {
   "name": "cairn",
-  "description": "Workflow kit for AI-assisted software projects — session journals, rolling todo punch list, autonomous-round cadence, and six-phase feature checklist. Pairs with ep-kit for structured proposals.",
+  "version": "0.3.0",
+  "description": "Workflow kit for AI-assisted software projects — session journals, rolling todo punch list, autonomous-round cadence, and six-phase feature checklist. Pairs with Strata for structured proposals.",
   "author": {
     "name": "Bartosz Ptaszynski",
     "email": "bartosz@foobarto.me"
-  }
+  },
+  "homepage": "https://github.com/foobarto/cairn#readme",
+  "repository": "https://github.com/foobarto/cairn",
+  "license": "MIT OR Apache-2.0",
+  "keywords": ["agent-skills", "workflow", "session-journal", "autonomy"]
 }

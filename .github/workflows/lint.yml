@@ -9,32 +9,43 @@ permissions:
   contents: read
 
 jobs:
-  frontmatter:
-    name: Frontmatter (skills/commands/agents)
+  validate:
+    name: Skills, tests, typing, and manifests
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
         with:
           python-version: "3.12"
-      - name: Install PyYAML
-        run: python -m pip install --quiet pyyaml
-      - name: Validate frontmatter
-        run: python3 scripts/validate_frontmatter.py
-
-  manifests:
-    name: Plugin manifests (JSON)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Validate plugin.json and marketplace.json
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+      - name: Install development dependencies
+        run: python -m pip install --requirement requirements-dev.txt
+      - name: Validate Agent Skills and Claude adapters
+        run: python3 scripts/validate_frontmatter.py --strict
+      - name: Cross-check canonical skills with skills-ref
+        run: |
+          for skill in skills/*; do
+            agentskills validate "$skill"
+          done
+      - name: Run typed Python tests
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
+      - name: Run installer regression tests
+        run: tests/test_install.sh
+      - name: Type-check Python
+        run: python3 -m mypy
+      - name: Validate plugin JSON
         run: |
           python3 -m json.tool .claude-plugin/plugin.json > /dev/null
           python3 -m json.tool .claude-plugin/marketplace.json > /dev/null
+          python3 -m json.tool .codex-plugin/plugin.json > /dev/null
+          python3 -m json.tool .agents/plugins/marketplace.json > /dev/null
 
   shellcheck:
     name: ShellCheck
     runs-on: ubuntu-24.04
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Run shellcheck

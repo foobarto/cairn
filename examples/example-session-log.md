@@ -8,7 +8,8 @@
 User instruction:
 
 > Pick up the kanban stuck-banner work — it's been sitting in P1
-> for two cycles. Take it to done if you can in one round.
+> for two cycles. Take it to done in one round if you can, and commit locally
+> if the gates pass.
 
 ---
 
@@ -18,6 +19,8 @@ User instruction:
 parked in the "review" column for >24h. Issue #274, tier P1.
 Picked because it's the oldest P1 item and it's bounded — one
 LiveView template + one query + a css utility class.
+
+**Proposal:** None — contained presentation change with no durable contract.
 
 **What shipped:**
 
@@ -46,10 +49,12 @@ LiveView template + one query + a css utility class.
 
 **Gates:**
 
-- `pnpm test lib/app_web/live/task_live_test.exs` — 31/0
+- `mix test test/app_web/live/task_live_test.exs` — 31/0
   (3 new tests on `stuck?/1`).
-- `pnpm typecheck` — clean.
-- `pnpm format --check` — clean.
+- `mix format --check-formatted` — clean.
+- `mix credo --strict` — 0 issues.
+- Security review (manual) — no new input, authorization, secret, path, or
+  dependency boundary; presentational change only.
 - Manual: opened `/companies/demo/tasks/demo-01`, verified banner
   appears when `reviewed_at` is >24h old, disappears when
   fresh.
@@ -66,15 +71,15 @@ LiveView template + one query + a css utility class.
 **Commit:** `a3f2c91` — `feat(task): stuck banner for reviews
 parked > 24h (#274)`.
 
+**Proposal reconciliation:** No proposal changes required.
+
 ---
 
 ## Handoff — 15:05
 
 **Shipped this round:** `a3f2c91` stuck-banner on TaskLive.
 
-**Stopped because:** first commit of the session + 3-commits
-soft cap is the ceiling; user asked for "one round" explicitly,
-so I'm stopping rather than scheduling the next wakeup.
+**Stopped because:** the requested single round is complete.
 
 **Queued if you want more (none picked):**
 

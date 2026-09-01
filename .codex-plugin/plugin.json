@@ -1,0 +1,38 @@
+{
+  "name": "cairn",
+  "version": "0.3.0",
+  "description": "Portable workflow skills for bounded AI-assisted software delivery, review, session continuity, and project guidance.",
+  "author": {
+    "name": "Bartosz Ptaszynski",
+    "url": "https://github.com/foobarto"
+  },
+  "homepage": "https://github.com/foobarto/cairn",
+  "repository": "https://github.com/foobarto/cairn",
+  "license": "MIT OR Apache-2.0",
+  "keywords": [
+    "agent-skills",
+    "workflow",
+    "session-journal",
+    "autonomy",
+    "review"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Cairn",
+    "shortDescription": "Keep AI-assisted project work bounded and legible",
+    "longDescription": "Install portable skills for project profiling, session continuity, bounded autonomous rounds, explicit stop conditions, and proportional quality and security review.",
+    "developerName": "Bartosz Ptaszynski",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/foobarto/cairn",
+    "defaultPrompt": [
+      "Initialize Cairn's portable workflow in this project.",
+      "Run one bounded Cairn round and return control.",
+      "Review this change with Cairn's quality and security phase."
+    ]
+  }
+}

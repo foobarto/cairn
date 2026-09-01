@@ -4,6 +4,62 @@ All notable changes to cairn will be recorded here. Format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions
 follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+## [v0.3.0] — 2026-09-01
+
+### Added
+
+- Cross-client installation of all canonical skills under `.agents/skills/`,
+  with `--skill-dir`, `--no-skills`, and managed `--upgrade-skills` controls.
+- Deterministic validator, manifest, and installer regression tests; strict
+  Python type checking; official `skills-ref` CI cross-checks; and
+  harness-neutral behavioral evaluation scenarios.
+- Safe default `AGENTS.md` project entry point with a configurable
+  project-relative client instructions path and explicit Gemini CLI, Codex,
+  OpenCode, and Claude Code adapters.
+- Native Codex plugin/marketplace metadata alongside the Claude Code adapter.
+- Optional Strata interoperability through its `.ep-kit` public contract:
+  configured-path discovery, authoritative lifecycle gates, P3 promotion,
+  Accepted/Partial work decomposition, EP conformance review, and Ship/close
+  reconciliation without duplicating proposal governance.
+
+### Changed
+
+- Skill directories now match their `cairn-*` frontmatter names and versions
+  use the Agent Skills `metadata` map. `--upgrade-skills` migrates the known
+  legacy directory names when no conflicting current directory exists.
+- Canonical skills are client-neutral and capability-detect continuation,
+  subagents, review tools, and memory instead of assuming Claude-specific
+  features.
+- Autonomous proposal handling now treats Draft and Placeholder as
+  non-authorizing at every autonomy level, delegates completion status to the
+  proposal system, and uses cycle rather than commit checkpoints.
+- The project instructions source is now
+  `templates/agent-instructions.md`; the installer selects its target name.
+- The 0.3.x series is the planned final stabilization line before 1.0. It
+  establishes the candidate public skill names, installer behavior, artifact
+  paths, and plugin coordinates; barring compatibility issues discovered in
+  0.3.x, the next release line will be 1.0.
+- The optional proposal companion is named Strata from its 1.3.0 release and
+  lives at `foobarto/strata`. Its `.ep-kit` configuration, `kit_version`,
+  canonical citations, and installed `ep-kit*` skill names remain compatible;
+  the former repository URL redirects.
+
+### Fixed
+
+- Installer argument validation now happens before writes and rejects target
+  escapes, singular `.agent/` skill roots, invalid profile scopes, and unsafe
+  option combinations. Managed upgrades also reject nested symlinks and verify
+  Cairn ownership before migrating a legacy-named skill.
+- Strata references remain canonical `EP-NNNN` / `EP-NNNN D<N>` even when
+  `.ep-kit` configures a different proposal-number frontmatter prefix.
+- Non-interactive installs no longer write a global personal profile by
+  default. Tracked personal-profile scaffolding was removed, and profile or
+  memory updates require explicit authority.
+- Standalone installed skills no longer link back into repository-only
+  template paths.
+
 ## [v0.2.0] — 2026-04-25
 
 ### Added

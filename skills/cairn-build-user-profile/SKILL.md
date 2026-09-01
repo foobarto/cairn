@@ -1,7 +1,8 @@
 ---
 name: cairn-build-user-profile
-version: 0.2.0
-description: Use to maintain the global user profile at ~/.config/cairn/user-profile.md (or the project-local path if install configured one). Triggers when the user reveals durable preferences about how they think, decide, or collaborate — editor choices, decision patterns, architectural instincts, pushback to AI framing, etc. Observations go in with evidence; the file is periodically re-synthesised, not blindly appended. Distinct from build-project-profile which captures the project's stances.
+description: Maintain a Cairn user profile when the user explicitly asks to record a durable collaboration preference or authorizes profile synthesis. Keep personal observations private by default; use cairn-build-project-profile for shared project stances.
+metadata:
+  version: "0.3.0"
 ---
 
 # cairn: Build-user-profile skill
@@ -13,23 +14,23 @@ a single-issue level (those are individual memory entries);
 
 ## When to use this skill
 
-- The user reveals a durable preference about how they work
-  (editor, license, autonomy comfort, decision style).
-- The user corrects your framing in a way that reveals a
-  pattern ("too narrow," "too formal," "pick one visibly").
-- The user confirms an unusual choice without pushback —
-  that's a validated judgement worth capturing.
-- At session close (invoked from `close-session` skill) —
-  check for new signal worth synthesising in.
+- The user explicitly asks to record a durable preference about
+  how they work.
+- The user authorizes a synthesis pass over prior Cairn profile
+  evidence.
+- At session close, only when standing user or project guidance
+  already authorizes Cairn profile maintenance.
 
 ## Do NOT use for
 
 - Task-ephemeral preferences (which file to edit now).
 - Frustration, impatience, or emotional reactions — this is
   about working patterns, not moods.
-- Project-specific stances (use `build-project-profile`).
+- Project-specific stances (use `cairn-build-project-profile`).
 - Random one-off observations — need at least two data points
   or an explicit statement before it goes in.
+- Preference signals the user did not ask to persist. Noticing a
+  pattern is not authority to write personal data.
 
 ## Profile location (resolve at start)
 
@@ -105,15 +106,15 @@ the session journals have it.
 - Don't let any section grow past ~8-10 bullets. If it does,
   you're probably not re-synthesising; cluster or re-cut.
 
-## At session close
+## At an authorized session close
 
 Invoked from `cairn-close-session`:
 
 1. Read today's session journal.
 2. Scan for signal-bearing exchanges (user correction,
    confirmed unusual choice, preference reveal).
-3. If one or more new observations are warranted, add them
-   with evidence.
+3. If one or more new observations are warranted and the user
+   authorized this profile update, add them with evidence.
 4. Consider whether this triggers a re-synthesis pass (if >5
    observations added since last synthesis, or if a newer
    observation supersedes an older one).
@@ -123,9 +124,8 @@ Invoked from `cairn-close-session`:
 
 ## Privacy
 
-The user profile is personal. Default location is private
-(`~/.config/cairn/`, not tracked in any repo). If the user
-chose a project-local tracked location at install time, they
-accepted the tradeoff — but the skill should still err toward
-private: don't save observations that would be embarrassing
-in a PR review.
+The user profile is personal. Default locations are private:
+`~/.config/cairn/` or a project-local ignored `.cairn/` path.
+Do not create or update a tracked personal profile unless the user
+explicitly chooses that exact publication boundary after being told
+the file will be visible to repository collaborators.

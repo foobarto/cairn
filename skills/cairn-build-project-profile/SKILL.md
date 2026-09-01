@@ -1,7 +1,8 @@
 ---
 name: cairn-build-project-profile
-version: 0.2.0
-description: Use to maintain the project profile at docs/project-profile.md — declarative statement of the project's values, risk tolerance, security posture, quality bar, and contribution norms. Triggers when the project settles a stance on a cross-cutting concern (e.g., "we don't mock databases in tests", "pre-1.0, no backwards-compat shims", "security posture is paranoid about injection"). Tracked in git; shared with all contributors. Updated in-place as part of normal PR workflow, NOT synthesis of individual sessions.
+description: Maintain docs/project-profile.md when a project explicitly adopts or revises a shared stance on risk, security, quality, architecture, or contribution norms. Do not use for personal preferences or unsettled ideas.
+metadata:
+  version: "0.3.0"
 ---
 
 # cairn: Build-project-profile skill
@@ -28,9 +29,9 @@ stances, written declaratively.
 ## Do NOT use for
 
 - Per-session observations about the user (that's
-  `build-user-profile`).
+  `cairn-build-user-profile`).
 - Operational details (how to run tests, where files live
-  — that's CLAUDE.md).
+  — those belong in the project's agent-instructions file).
 - Speculative stances. Only codify what the project has
   actually settled.
 - Architecture documentation. If it needs a diagram or 500
@@ -44,8 +45,12 @@ in git. Not configurable — the whole point is it's shared
 history every contributor sees.
 
 If the file doesn't exist when this skill is first invoked,
-bootstrap from `templates/project-profile.md` and commit it as
-part of the PR that introduces the first real stance.
+bootstrap it only when the user authorized creating the shared profile. Use
+frontmatter with `cairn-artifact: project-profile`, `version: 1`, and
+`last-synthesised`, followed by these headings: Code style, Architecture style,
+Risk tolerance, Security posture, Quality bar, Contribution norms, Tech-debt
+stance, Design aesthetic, and Open tensions. Do not depend on a repository-only
+template path.
 
 ## How to update
 
@@ -62,8 +67,8 @@ what belongs where. Typical update sequence:
 3. Keep it short. A project profile bullet is 1-3 sentences
    of stance; elaboration links out to dedicated docs.
 4. Update `last-synthesised:` in the frontmatter.
-5. Commit as part of a regular PR — profile changes go
-   through code review like any other change.
+5. Include it in the normal review flow. Commit it only when the request or
+   project policy authorizes commits.
 
 ## What belongs in each section (reminders)
 
@@ -122,8 +127,8 @@ Link from the project profile; don't duplicate.
 Invoked optionally from `cairn-close-session`:
 
 - If a session settled a stance that belongs in the profile,
-  add it now (as part of the close-out commit, so it rides
-  with the shipping PR).
+  add it only when the close request or standing policy authorizes a durable
+  shared-profile update.
 - If not, note in the handoff: "No project-profile updates
   this session."
 
@@ -132,6 +137,5 @@ Invoked optionally from `cairn-close-session`:
 For projects adopting cairn mid-life, the first
 project-profile pass is an intentional exercise, not an
 accidental accumulation. Sit with a maintainer and fill in
-each section from scratch. The template has comments to
-prompt the right questions. Don't copy another project's
+each section from scratch using the section reminders above. Don't copy another project's
 profile — these stances are project-specific.

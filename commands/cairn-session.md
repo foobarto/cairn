@@ -1,12 +1,12 @@
 ---
 description: Open or append to today's cairn session log
-allowed-tools: Bash(date:*), Bash(ls:*), Bash(test:*), Read, Write, Edit
+allowed-tools: Bash(date:*), Bash(ls:*), Bash(test:*), Bash(git log:*), Read, Write, Edit
 ---
 
 # /cairn-session
 
 Open today's session journal, or append the most recent seam
-(commit + gate results + deciscions taken since the last entry)
+(commit + gate results + decisions taken since the last entry)
 to an existing one. Calls into the `cairn-session-log` skill for
 the detailed format rules.
 
@@ -40,6 +40,10 @@ Before writing, pull the facts from recent context:
 - Last few commits (`git log -n 5 --oneline`).
 - Last test/gate results if any were run this turn.
 - Any design decisions the agent took autonomously.
+
+Record only adopted project rationale and concrete evidence. Do not copy
+credentials, personal information, host-specific paths, private methodology,
+or transcript-like deliberation into a repository journal.
 
 ## Usage
 

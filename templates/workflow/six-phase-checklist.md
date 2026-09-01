@@ -12,12 +12,12 @@ principles is the failure mode this doc is designed to prevent.
 
 | # | Phase      | Artefact                                            |
 |---|------------|-----------------------------------------------------|
-| 1 | **Spec**   | Proposal draft (via ep-kit, in `docs/eps/` or the equivalent) |
-| 2 | **Plan**   | Proposal accepted; concrete implementation outline  |
+| 1 | **Spec**   | Change classification; proposal only for a durable decision |
+| 2 | **Plan**   | Accepted/Partial proposal when required; concrete implementation outline |
 | 3 | **Build**  | Code changes + any doc-adjacent updates             |
 | 4 | **Test**   | Unit green + E2E/manual where applicable            |
 | 5 | **Review** | Self-review (see below) + second opinion            |
-| 6 | **Ship**   | Commit + push, AND every doc the change affects     |
+| 6 | **Ship**   | Verified handoff; authorized commit/push; affected docs |
 
 Bug fixes, doc tweaks, and dep bumps collapse phases 1–2 (no
 proposal) but still pass through 3–6.
@@ -26,7 +26,8 @@ proposal) but still pass through 3–6.
 
 ## Phase 1 — Spec
 
-Write a proposal before writing code when the change:
+Classify the change before writing code. Use the project's proposal system
+when the change:
 
 - Affects a public contract (API, CLI surface, on-disk layout).
 - Touches a load-bearing invariant.
@@ -34,14 +35,20 @@ Write a proposal before writing code when the change:
 - Answers a "should we do X or Y?" question that isn't obvious
   from the code.
 
-For bug fixes, contained refactors, dep bumps — skip the
-proposal, go straight to phase 3. Trust the commit message + PR
-description to carry the rationale.
+For bug fixes, contained refactors, and dependency bumps that preserve durable
+contracts, skip the proposal and go straight to phase 3. Search existing
+proposals before creating a new design artifact. Draft/Placeholder never
+authorizes implementation without a specific acknowledged override.
+
+When `.ep-kit` exists, read its public config to resolve the proposal directory
+and validator; do not assume `docs/eps/`. Strata owns proposal structure,
+Decision Logs, relationships, and lifecycle. Cairn records only work state and
+stable references.
 
 ## Phase 2 — Plan
 
-Proposal is `Accepted`. Outline the implementation before
-opening the first file:
+When a proposal is required, it is `Accepted` or `Partial`. Outline the
+implementation before opening the first file:
 
 1. Modules/files that will change.
 2. Tests you'll add or update.
@@ -53,8 +60,8 @@ journal, not a separate document.
 
 ## Phase 3 — Build
 
-Code. Follow the project's coding discipline (usually pinned in
-`CLAUDE.md`). Keep commits surgical — every changed line should
+Code. Follow the project's coding discipline in its agent-instructions file.
+Keep commits surgical — every changed line should
 trace to the user's request.
 
 Touch adjacent docs **in the same commit** where it's cheap:
@@ -73,7 +80,7 @@ block. Do not claim done before this.
 
 ## Phase 5 — Review
 
-Three passes, in order. **Quality and security are both
+Three passes, in order. **Quality and security consideration are both
 mandatory**; second opinion is expected on non-trivial changes
 but optional for small diffs.
 
@@ -102,27 +109,25 @@ Record tool + command + result in the session journal:
 - `mix credo --strict` — 0 issues (exit 0 explicitly verified).
 ```
 
-### 5c. Security pass (mandatory)
+### 5c. Proportional security pass (mandatory)
 
-Never skip. Two paths:
+Never skip security consideration. Choose the depth that matches the change:
 
-- **Tool-based:** Run detected SAST (`semgrep`, `bandit`,
-  `gitleaks`, etc.). If `security-kit` or similar orchestrator
-  is installed, use it.
-- **Manual fallback** (when no tool is available): Read the
-  diff explicitly against OWASP Top 10, secret handling,
-  authz/authn boundaries, input validation at system edges,
-  dependency risk. Document in the journal.
+- **Tool-based:** Run configured, relevant static analysis when available and
+  authorized.
+- **Manual:** Read the diff against applicable trust boundaries, secret
+  handling, authentication/authorization, input and path handling, and
+  dependency risk. A docs-only change may make most categories inapplicable;
+  state that rather than performing review theater.
 
 Record in the journal. Any high/critical finding is a blocker
 — do not proceed to phase 6 until resolved.
 
 ### 5d. Second opinion (optional for small changes)
 
-For non-trivial changes (new modules, API contracts, security-
-adjacent code, >~200 lines across 2+ files): dispatch a
-second-opinion reviewer — another person, `codex exec`, or a
-specialised code-review agent.
+For non-trivial changes (public contracts, persistent formats, trust
+boundaries, multi-component behavior): dispatch an available independent
+reviewer with a bounded definition of done.
 
 For small diffs (bug fixes under ~50 lines, doc changes, dep
 bumps): skip and note the skip with reason.
@@ -130,7 +135,15 @@ bumps): skip and note the skip with reason.
 Apply must-fix feedback inline. Log nice-to-haves to the
 session journal.
 
-### If cairn's `review-phase` skill is available
+### 5e. EP conformance (when applicable)
+
+If the change claims to implement an Accepted/Partial proposal, separately
+compare it with the proposal's Goals, Non-goals, Design constraints, and
+relevant Decision Log entries. A technically correct diff that conflicts with
+its governing proposal is a blocker. Record the stable proposal/decision
+references, not a duplicate Decision Log.
+
+### If cairn's `cairn-review-phase` skill is available
 
 It orchestrates 5b-5d automatically: tool detection, plan
 proposal, invocation of the `review-runner` sub-agent, summary
@@ -139,7 +152,8 @@ into the journal. Use it as the default entry point for phase
 
 ## Phase 6 — Ship
 
-Commit + push if authorised. **Then** do the doc pass. Consider
+Complete the doc pass and create a verified handoff. Commit or push only when
+the request or project policy authorizes it. Consider
 updating every one of these:
 
 - `CHANGELOG.md` — what shipped, always.
@@ -147,8 +161,15 @@ updating every one of these:
   changed.
 - The project's architecture / design doc — if module map,
   invariants, or tech stack changed.
-- Proposal status — flip `Accepted → Implemented` when the
-  implementation lands.
+- Proposal lifecycle — run the proposal system's completion
+  checkpoint. For Strata, compare every goal and rollout obligation,
+  distinguish `Partial` from `Implemented`, update history/index and
+  `implemented-in` where required, validate the full proposal set,
+  and mutate status only with explicit authority.
+- For every proposal referenced this session, also check for stale todo items,
+  supersession/rejection routing, and architectural discoveries that must leave
+  the journal for proposal governance. Most sessions should record `No
+  proposal changes required.`
 - `docs/todo.md` — cross off whatever this change addressed.
 - Manual test checklist — if a UI surface was added.
 - Knowledge-graph notes — if you uncovered a gotcha, surprising

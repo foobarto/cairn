@@ -4,8 +4,8 @@
   cairn's rolling punch list template. Ships at `docs/todo.md`.
 
   This file carries *noticed-but-not-yet-shipped* items that
-  don't warrant a full proposal. Bigger architectural work goes
-  to the proposal directory (typically `docs/eps/` via ep-kit).
+  don't warrant a full proposal. When `.ep-kit` exists, resolve its
+  configured proposal directory instead of assuming `docs/eps/`.
 -->
 
 Rolling list of noticed-but-not-yet-shipped items. Updated at the
@@ -17,7 +17,7 @@ end of every working cycle.
 - **What doesn't:** architectural decisions (→ proposal), shipped
   work (→ CHANGELOG), autonomous-session review notes (→ session
   journal under `docs/sessions/`), load-bearing invariants (→
-  CLAUDE.md or the project's architecture doc).
+  agent-instructions file or the project's architecture doc).
 
 Format: one bullet per item. Check `[x]` when shipped; delete
 once it's been in CHANGELOG for a cycle.
@@ -49,8 +49,12 @@ once it's been in CHANGELOG for a cycle.
 
 <!--
   Bigger items that might be worth a proposal later. Park them
-  here so the idea isn't lost; when they firm up, write a
-  proposal and check them off.
+  here so the idea isn't lost. If one crosses a public contract,
+  persisted representation, trust boundary, load-bearing invariant,
+  or durable design-choice boundary, promote it through the installed
+  proposal system. Replace the evolving design text with a compact
+  reference such as `- [x] Provider contract design -> EP-0017` and
+  record the promotion in the current session journal.
 -->
 
 - [ ] ...

@@ -1,10 +1,12 @@
 # Contributing
 
-Thanks for considering a contribution. cairn is a Claude Code **plugin** —
-a bundle of templates, skills, slash commands, and sub-agent definitions
-that codify a workflow (see [README.md](./README.md) for the shape and
+Thanks for considering a contribution. Cairn is a portable Agent Skills
+workflow with native Codex and Claude Code plugin adapters, templates,
+commands, and optional
+sub-agent definitions (see [README.md](./README.md) for the shape and
 [`docs/workflow.md`](docs/workflow.md) for the full picture). There's no
-runtime code; the substance is plain Markdown plus a shell scaffolder.
+application service; the small shell/Python utilities scaffold and validate
+the Markdown workflow artifacts.
 
 Report vulnerabilities through the repository Security tab or the
 [account-wide security policy](https://github.com/foobarto/.github/blob/main/SECURITY.md),
@@ -24,37 +26,41 @@ a change is updated in the same PR (the six-phase checklist's "Ship" bar).
 
 | Artefact            | Path                  | Frontmatter |
 |---------------------|-----------------------|-------------|
-| Skills              | `skills/<name>/SKILL.md` | required: `name` (slug), `description`; optional: `version` |
+| Skills              | `skills/<name>/SKILL.md` | Agent Skills spec; directory must equal `name` |
 | Slash commands      | `commands/<name>.md`     | required: `description`; optional: `allowed-tools` (name = filename) |
 | Sub-agents          | `agents/<name>.md`       | required: `name` (slug), `description`; optional: `tools` |
 | Project templates   | `templates/`             | — copied into target projects by `install.sh` |
 | Workflow docs       | `templates/workflow/`    | — the protocol substance |
 | CLI adapter docs     | `docs/for-*.md`          | — per-CLI porting notes |
-| Plugin manifests    | `.claude-plugin/`        | `plugin.json`, `marketplace.json` |
+| Plugin manifests    | `.claude-plugin/`, `.codex-plugin/`, `.agents/plugins/` | Client manifests and marketplaces |
 
 ## Editing skills, commands, and agents
 
-The `description` is load-bearing: Claude Code matches against it to decide
-whether to invoke a skill/agent, so **lead with "when to use" phrasing**, not
-"what this does." Rules the frontmatter lint
+The `description` is load-bearing: clients use it to decide whether to activate
+a skill, so describe both what it does and when it applies. Rules the
+frontmatter lint
 ([`scripts/validate_frontmatter.py`](scripts/validate_frontmatter.py))
 enforces:
 
-- **Skills & agents** require `name` and `description`. `name` must be a valid
-  slug (`[a-z][a-z0-9-]*`). Skill names are conventionally `cairn-`prefixed
-  (`cairn-session-log`); agent names are bare (`review-runner`).
+- **Skills** follow the [Agent Skills specification](https://agentskills.io/specification):
+  `name` and `description` are required; names match
+  `^[a-z0-9]+(-[a-z0-9]+)*$`, are at most 64 characters, and equal the parent
+  directory. Put Cairn's version string under `metadata.version`, not a
+  top-level `version` field.
+- **Agents** require `name` and `description`; agent names are lowercase slugs.
 - **Commands** require only `description` — the command name is the filename,
   so `commands/cairn-round.md` is invoked as `/cairn-round`.
-- `description` should be ≥ 30 chars and < 1024 (Claude Code truncates the
-  tail). Outside that range is a warning, not a failure.
+- Skill descriptions must be non-empty and at most 1024 characters. Cairn
+  warns below 30 characters because such triggers are usually ambiguous.
 - `allowed-tools` is optional and cairn's skills deliberately omit it (the
   workflow skills need broad access); commands pin a tool list where it helps.
 
 ## Adding a new artefact
 
-- **Skill:** create `skills/<name>/SKILL.md` with the frontmatter above. If it
-  scaffolds files into a project, also teach `install.sh` (and the
-  `/cairn-init` command) to copy any new template.
+- **Skill:** create `skills/<name>/SKILL.md` with the frontmatter above. The
+  installer discovers canonical skill directories automatically. Keep the
+  package self-contained: do not link back to repository-only paths that will
+  disappear under `.agents/skills/`.
 - **Command:** create `commands/<name>.md`. Keep it a thin entry point that
   delegates to a skill where there's shared substance.
 - **Agent:** create `agents/<name>.md`. Agents should be read-mostly and
@@ -65,13 +71,16 @@ enforces:
 
 ## Plugin manifests
 
-`plugin.json` is the plugin manifest; `marketplace.json` is the single-plugin
-marketplace catalog that makes `/plugin marketplace add foobarto/cairn` work.
-Both must stay valid JSON (CI checks this — a broken manifest breaks the whole
-plugin). `commands/`, `skills/`, and `agents/` are auto-discovered by
-directory convention, so adding a file there needs no manifest change. There's
-no `version` in `plugin.json` on purpose: git-hosted installs version by commit
-SHA, and releases are tracked in `CHANGELOG.md`.
+Claude uses `.claude-plugin/plugin.json` plus its marketplace and auto-discovers
+`commands/`, `skills/`, and `agents/`. Codex uses
+`.codex-plugin/plugin.json`, whose `skills` path points at the same canonical
+packages, plus `.agents/plugins/marketplace.json`.
+
+In the repository Codex marketplace, `source.url: "./"` deliberately resolves
+to the installed marketplace checkout root. This preserves the selected
+marketplace ref; do not replace it with a separate default-branch fetch without
+an explicit distribution change. All manifests must stay valid JSON and the
+development versions must remain aligned with the next changelog entry.
 
 ## Checks
 
@@ -79,13 +88,16 @@ Run the same checks CI runs ([`.github/workflows/lint.yml`](.github/workflows/li
 before opening a PR:
 
 ```sh
-python3 scripts/validate_frontmatter.py            # skill/command/agent frontmatter
-python3 -m json.tool .claude-plugin/plugin.json > /dev/null      # manifest valid?
-python3 -m json.tool .claude-plugin/marketplace.json > /dev/null # manifest valid?
-shellcheck --severity=warning install.sh           # shell lint (matches CI)
+python3 -m pip install -r requirements-dev.txt
+python3 scripts/validate_frontmatter.py --strict
+python3 -m unittest discover -s tests -p 'test_*.py'
+tests/test_install.sh
+python3 -m mypy
+shellcheck --severity=warning install.sh tests/test_install.sh
 ```
 
-`validate_frontmatter.py` needs PyYAML (`pip install pyyaml`).
+Behavioral activation boundaries live under `evals/`; follow its README when
+changing descriptions, autonomy, proposal gates, or persistence authority.
 
 ## Pull requests
 
@@ -104,6 +116,10 @@ open a PR — CI runs on it and gates the merge.
   version's `CHANGELOG.md` entry and stamping its date; tag `main` with the
   `vX.Y.Z` string if you want a pinned install version (otherwise git-hosted
   installs track the commit SHA).
+- Treat 0.3.x as the final planned pre-1.0 stabilization line. Compatibility
+  findings may receive another 0.3.x release; otherwise the next release line
+  is 1.0, which freezes the documented skill names, installer surface,
+  artifact paths, and plugin coordinates.
 
 ## License
 

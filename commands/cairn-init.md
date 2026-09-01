@@ -1,13 +1,14 @@
 ---
 description: Scaffold cairn's workflow artefacts into the current project
-allowed-tools: Bash(mkdir:*), Bash(cp:*), Bash(test:*), Bash(ls:*), Read, Write, Edit
+allowed-tools: Bash(mkdir:*), Bash(cp:*), Bash(test:*), Bash(ls:*), Bash(git rev-parse:*), Read, Write, Edit
 ---
 
 # /cairn-init
 
 Scaffold cairn's workflow artefacts into the current project
-(the one you're `cd`'d into). Non-destructive — existing files
-are left alone; new ones are created from templates.
+(the one you're `cd`'d into). Existing workflow files are skipped. An existing
+`CLAUDE.md` or `.gitignore` changes only after the specific prompt described
+below.
 
 ## What gets created
 
@@ -16,7 +17,7 @@ Relative to the current project root:
 | Path                                    | Source                                              |
 |-----------------------------------------|-----------------------------------------------------|
 | `docs/sessions/`                        | new directory                                       |
-| `docs/sessions/README.md`               | short pointer to the template                       |
+| `docs/sessions/README.md`               | short journal convention                            |
 | `docs/todo.md`                          | `cairn/templates/todo.md`                           |
 | `docs/project-profile.md`               | `cairn/templates/project-profile.md`                |
 | `docs/workflow/governing-principles.md` | `cairn/templates/workflow/governing-principles.md`  |
@@ -28,7 +29,7 @@ Plus one **interactive prompt** for the user-profile location.
 ## CLAUDE.md handling
 
 If no `CLAUDE.md` exists at the project root: drop
-`cairn/templates/CLAUDE.md` as-is, telling the user to customise
+`cairn/templates/agent-instructions.md` as `CLAUDE.md`, telling the user to customise
 the "Project-specific notes" section at the bottom.
 
 If `CLAUDE.md` already exists: **do not overwrite.** Instead,
@@ -49,11 +50,9 @@ Where should cairn keep your user profile?
       One profile across all your cairn projects. Private to you.
   [2] Project-local, gitignored — .cairn/user-profile.md
       Per-project, not shared with collaborators.
-  [3] Project-local, tracked — docs/user-profiles/<handle>.md
-      Per-project, shared with collaborators (handle = git user).
   [4] Skip — no profile feature.
 
-Pick [1/2/3/4] (default: 1):
+Pick [1/2/4] (default: 1):
 ```
 
 Record the choice:
@@ -65,13 +64,12 @@ Record the choice:
   `/.cairn/` to the project's `.gitignore` (ask before editing).
   Write `<project>/.cairn/config.json` with
   `{"user_profile_path": ".cairn/user-profile.md"}`.
-- **Option 3 (local, tracked):** resolve `<handle>` from `git
-  config user.name` (fall back to `$USER`). Create
-  `<project>/docs/user-profiles/<handle>.md` from template.
-  Write `<project>/.cairn/config.json` with
-  `{"user_profile_path": "docs/user-profiles/<handle>.md"}`.
 - **Option 4 (skip):** do not create the profile file or
   config.
+
+Tracked personal profiles are intentionally unsupported. If the user asks for
+one, explain the publication boundary and require an explicit project-specific
+decision rather than treating it as an install mode.
 
 ## Steps
 
@@ -104,12 +102,23 @@ notes" section with your project's actual commands and invariants.
 
 6. Do NOT auto-commit. Let the user review the scaffolding and
    commit as part of their normal workflow.
+7. If `<target>/.ep-kit` exists, report that Cairn will use its configured
+   proposal directory, prefix, validator, and version through the
+   `cairn-strata-interop` skill. Do not install or modify Strata.
+8. If `.ep-kit` is absent and the user's setup context explicitly identifies a
+   clearly architectural P3/design backlog, include one optional line:
+   `Optional: this project is accumulating durable design decisions. Strata
+   adds numbered proposals, decision logs, lifecycle, and validation:
+   https://github.com/foobarto/strata`
+   Do not show this line for ordinary setup, repeat it in later sessions, or
+   create state solely to track the suggestion.
 
 ## Non-goals
 
-- Does not install ep-kit. If the project wants structured
-  proposals, run ep-kit's own installer separately.
-- Does not modify `.gitignore`.
+- Does not install Strata. If the project wants structured
+  proposals, run Strata's own installer separately.
+- Modifies `.gitignore` only when the user selects option 2, which explicitly
+  requests a project-local ignored profile.
 - Does not scan existing code or infer project specifics.
-  Customisation of `CLAUDE.md`'s project-specific section is
+  Customisation of the selected agent-instructions file's project-specific section is
   the user's call.

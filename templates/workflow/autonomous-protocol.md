@@ -9,12 +9,12 @@ trail legible.
 This doc covers both modes:
 
 - **Round** — one cycle, stop when done, hand control back.
-- **Loop** — repeat rounds, schedule next wakeup, stop on
-  checkpoint or stop criterion.
+- **Loop** — repeat rounds using a client-supported continuation
+  mechanism, stopping at a checkpoint or stop criterion.
 
 The substance (task pick, gates, commit, journal) is identical.
-The delta is *what happens after step 8 of the loop*: stop
-(round) or schedule-and-continue (loop).
+The delta is *what happens after step 8*: stop (round) or
+continue through a capability the current client actually exposes (loop).
 
 ## Governing principles apply first
 
@@ -37,22 +37,24 @@ Autonomy level for this <round|loop>?
 
   [L0] Supervised — ask before picking any task. Default for
        risky or unfamiliar projects.
-  [L1] Conservative — pick bounded tasks, gate, commit. Do
-       NOT touch Drafts, Placeholders, or in-progress partials.
-  [L2] Partials too (default) — L1 plus: finish in-progress
-       work (half-written Drafts, stub modules, missing E2E).
-       No new proposals from scratch, no status promotions.
-  [L3] Expansive — L2 plus: promote Placeholder → Draft when
-       design space is settled; never push.
+  [L1] Conservative — pick unambiguously bounded P0/P1 tasks.
+       Do not pick unfinished implementation or proposal work.
+  [L2] Partials too (default) — L1 plus incomplete bounded code,
+       tests, or docs. Proposal-governed code requires an Accepted
+       or Partial proposal; Draft/Placeholder never authorizes it.
+  [L3] Expansive — L2 plus proposal research or drafting and
+       bounded P2 work. Never infer authority to change proposal
+       status, accept a design, or publish.
   [L4] Publish — L3 plus: push to remote after all gates green.
        Rare and opt-in.
 
 Pick [L0/L1/L2/L3/L4] (default: L2):
 ```
 
-**Default is L2.** Most autonomous asks are "finish what's
-in-flight, don't start greenfield work, don't push." If the
-user wants tighter or looser scope they'll say so.
+**Default is L2.** Here, an in-progress partial means code, tests, or
+documentation whose governing design is already accepted (or does not
+need a proposal). It never means implementation governed by an
+unaccepted proposal.
 
 The project profile (if present) can cap the menu — e.g., a
 project profile declaring "risk tolerance: conservative" caps
@@ -63,9 +65,10 @@ the round's first entry.
 
 ## The loop (one cycle)
 
-1. **Check for user input** since the last wakeup (loop mode)
-   or since the user's triggering message (round mode). If a
-   new message has arrived, abandon the cycle and address it.
+1. **Check for user input** since the last continuation (loop mode)
+   or since the user's triggering message (round mode), when the
+   client exposes that state. If a new message has arrived, stop the
+   cycle and address it.
 2. **Verify prerequisites.** `docs/todo.md` exists. Session
    journal for today exists or will be created. Working tree
    is clean (no uncommitted changes from an earlier task).
@@ -73,16 +76,21 @@ the round's first entry.
    - L0: ask the user.
    - L1: P0 first → P1 only if no open Draft/Placeholder
      blocks the path.
-   - L2: P0 → P1 → in-progress partials (Drafts, stubs,
-     missing tests for shipped features).
-   - L3: L2 plus status promotions (Placeholder → Draft) when
-     the design space is settled.
+   - L2: P0 → P1 → in-progress implementation, tests, or docs
+     governed by an Accepted/Partial proposal or no proposal.
+   - L3: L2 plus bounded P2 work and proposal research/drafting.
+     Proposal lifecycle changes still require explicit authority.
    - L4: L3 plus push authority after green gates.
 
-   The `autonomous-planner` sub-agent (if cairn is installed on
-   Claude Code) is a good read-only helper here — it inspects
+   The `autonomous-planner` helper, when the client supports
+   subagents, can inspect
    `docs/todo.md` + recent journals and returns a task
    recommendation with rationale.
+
+   If `.ep-kit` exists and the task cites a proposal, resolve its configured
+   directory and status first. Only Accepted/Partial implementation work is
+   eligible. Implemented permits maintenance within the shipped contract;
+   Superseded routes to its replacement; all other statuses are ineligible.
 
    Bounded means: you can finish, gate, and commit in one turn,
    you know what "done" looks like before starting, and no open
@@ -99,26 +107,29 @@ the round's first entry.
    *Gates* block. Check exit codes where the tool reports
    warnings without non-zero exit.
 
-   If the review-phase skill is available (cairn v0.2.0+), run
+   If the `cairn-review-phase` skill is available (cairn v0.2.0+), run
    it here: it orchestrates quality + security passes using
    whatever tools the project has.
-7. **Commit locally.** Conventional-commit style subject; body
-   explains the *why* if non-obvious; reference the task you
-   picked. No pushes unless L4 and the project authorises it.
+7. **Commit locally when authorized.** Use the project's commit
+   conventions and explain the *why* if non-obvious. If neither the
+   request nor project policy authorizes commits, leave a verified
+   working tree and report it. No pushes unless L4 and the user
+   explicitly authorizes that external action.
 8. **Decide: continue or stop.** See "When to stop," below.
 
 ## Round mode — after step 8
 
 - Write the handoff summary at the end of the session journal.
-  No next wakeup scheduled.
+  No continuation is scheduled.
 - Return control to the user. The round is done.
 
 ## Loop mode — after step 8
 
-- Check commit-count checkpoints (see below).
-- If continuing: schedule the next wakeup (20-60 min cadence is
-  a good default for open-ended work).
-- If stopping: write the handoff summary. No next wakeup.
+- Check completed-cycle checkpoints (see below).
+- If continuing: use only a continuation or resume mechanism the
+  current client documents and exposes.
+- If none exists: stop after the round and explain how the user can
+  resume the loop.
 
 ## Hard rules (ALWAYS, every level)
 
@@ -126,10 +137,14 @@ the round's first entry.
   instructions have explicitly authorised pushes.
 - **Never force-push or rewrite** commits that have been
   pushed, or that touch others' work.
-- **Never start implementation** of a proposal whose status is
-  `Draft` or `Placeholder` unless you're at L2+ and the task
-  you picked is to finish a specific in-progress partial.
-  Never promote proposal status below L3.
+- **Never treat `Draft` or `Placeholder` as implementation
+  authority.** A specific override must explicitly acknowledge the
+  unaccepted status and authorize implementation before acceptance;
+  choosing L2/L3/L4 is not such an override. Proposal lifecycle
+  changes require separate explicit authority.
+- **Never implement from Withdrawn or Rejected proposals.** Follow the
+  replacement of a Superseded proposal. Treat Implemented as a shipped
+  contract, not an open implementation queue.
 - **Never bypass safety gates** (`--no-verify`, `--no-gpg-sign`,
   skipping precommit). If a gate fails, diagnose the underlying
   issue.
@@ -140,8 +155,8 @@ the round's first entry.
   external services** without explicit authorisation. The
   session journal is the sanctioned status-update channel for
   autonomous work.
-- **Never start a second task in the same turn.** One task per
-  turn, period.
+- **Never start a second task in the same cycle.** One task per
+  cycle, period.
 
 ## Mid-cycle "ask anyway" cases
 
@@ -160,25 +175,25 @@ Even mid-round, some decisions deserve stopping to ask:
 
 ## When to stop the loop
 
-Stop (don't schedule next wakeup) if:
+Stop (do not continue or schedule a resume) if:
 
 - **Blocker hit** beyond your authority — design decision,
   ambiguous failing gate, shared-state risk.
 - **No bounded task available** — P1 cleared, P2 items are all
   "revisit if feedback complains" placeholders. Don't force a
   pick.
-- **Commit checkpoint reached** — see below.
+- **Cycle checkpoint reached** — see below.
 - **User message arrived** mid-cycle.
 - **Commit failed** (hook rejection, unresolvable compile
   error).
 
-## Commit checkpoints (loop mode only)
+## Cycle checkpoints (loop mode only)
 
-- **3 commits in the session** (soft checkpoint): notify the
+- **3 completed cycles in the session** (soft checkpoint): notify the
   user via the journal's handoff section, wait for approval to
   continue past the checkpoint. Don't auto-schedule another
-  wakeup.
-- **5 commits in the session** (hard stop): stop
+  continuation.
+- **5 completed cycles in the session** (hard stop): stop
   unconditionally. Silent prolific output without a user
   checkpoint erodes trust faster than fewer commits plus a
   clear handoff.

@@ -1,7 +1,8 @@
 ---
 name: cairn-close-session
-version: 0.1.0
-description: Use when a session is ending — the user says "that's enough for today", "let's wrap up", "stop here", "close the session"; or when the agent itself judges the session is at a natural stopping point and wants to leave a clean handoff. Produces the end-of-session ritual — final journal entry, commit-status snapshot, handoff summary with concrete SHAs and explicit yes/no questions for the next session, and optional memory updates for durable preferences revealed during the session.
+description: Close an active Cairn work session when the user asks to wrap up or the current Cairn workflow reaches its explicit close step. Finalize the journal and return an evidence-based handoff without publishing or updating memory unless authorized.
+metadata:
+  version: "0.3.0"
 ---
 
 # cairn: Close-session skill
@@ -14,19 +15,18 @@ or agent) can pick up without context loss.
 
 - User says "that's enough for today" / "let's wrap up" / "stop
   here" / "close out" / similar.
-- The agent judges the session has reached a natural stopping
-  point (major feature shipped, wave of work closed, context
-  exhausted) and wants to leave a clean handoff.
+- An active Cairn workflow reaches an explicit close step after
+  the scoped work is complete.
 - Before a long scheduled break (weekend, vacation).
 - Before a dramatic context-clearing operation (`/clear`, new
   conversation).
 
 ## Do NOT use for
 
-- Brief pauses mid-task. Use the session-log skill to append a
+- Brief pauses mid-task. Use the `cairn-session-log` skill to append a
   short update, don't run the full close-out.
-- Ending an autonomous round. The autonomous-round skill's
-  handoff block is sufficient; close-session is heavier.
+- Ending an autonomous round. The `cairn-autonomous-round` skill's
+  handoff block is sufficient; `cairn-close-session` is heavier.
 
 ## The ritual (in order)
 
@@ -34,23 +34,23 @@ or agent) can pick up without context loss.
 
 Read:
 
-- `git status -uno` — what's uncommitted?
+- `git status --short --branch` — what is modified or untracked?
 - `git log <main>..HEAD --oneline` — what's unpushed?
 - Today's session journal — is its *Things I'd like your review*
   section up to date with the session's actual open questions?
 - `docs/todo.md` — anything the session revealed that should be
   on the punch list but isn't?
+- If `.ep-kit` exists, resolve it through `cairn-strata-interop` and list every
+  proposal reference used in the session.
 
-### 2. Tidy the working tree
+### 2. Account for the working tree
 
 Leaving uncommitted changes across a session break is usually
 fine — but flag what's there. Options:
 
-- **Commit** if the diff is substantial and meaningful.
-- **Stash** with a descriptive label if the work is paused
-  rather than done.
-- **Discard** only with explicit user confirmation — never
-  autonomous.
+- **Commit** only when the user request or project policy authorizes it.
+- **Stash** only when the user asks to pause work that way.
+- **Discard** only with explicit user confirmation.
 
 Do not push unless the user's instructions authorise it.
 
@@ -78,29 +78,24 @@ Write (or check) these sections:
   round's handoff block is intact — don't delete them during
   consolidation.
 
-### 5. Update profiles (if new signal this session)
+### 5. Offer profile updates when authorized
 
 Two profiles — user (global, personal) and project (per-project,
 shared):
 
-- **User profile** (via `cairn-build-user-profile` skill):
-  Scan today's journal for durable observations about *how the
-  user thinks* — decision patterns, design values, collaboration
-  posture. Only add observations with evidence (a concrete
-  session reference or quote). If ≥5 observations have been
-  added since last synthesis, re-read and consolidate; don't
-  just append.
+- **User profile** (via `cairn-build-user-profile` skill): update
+  only when the user explicitly asks to record a durable preference
+  or has already authorized profile synthesis. Do not infer consent
+  from ordinary conversation.
 - **Project profile** (via `cairn-build-project-profile` skill):
   If a session settled a project-wide stance (risk tolerance,
   security posture, quality bar, contribution norm), update
-  `docs/project-profile.md` as part of the close-out commit so
-  it rides with the shipping PR.
+  `docs/project-profile.md` only when the close request or standing project
+  policy authorizes that durable change.
 
-If your CLI also has a memory system (e.g. Claude Code's
-`~/.claude/projects/<slug>/memory/`), save individual preference
-memories there in addition to the user-profile synthesis —
-single-observation memories are cheap to reference and the
-user-profile is the rollup.
+If the client has a separate memory system, do not update it unless the
+user explicitly authorizes memory changes. A Cairn profile update does
+not imply permission to change another memory store.
 
 Do NOT save:
 
@@ -110,15 +105,34 @@ Do NOT save:
 - Hot opinions without a *why*.
 - Frustration, impatience, or emotional reactions.
 
-### 6. Commit the doc changes
+### 6. Reconcile referenced proposals
 
-A `docs(session): close out <date>` commit is standard. Include:
+For each proposal referenced this session, use `cairn-strata-interop` to assess
+status truthfulness, partial/full delivery, conformance conflicts,
+architectural discoveries, and todo items made stale by supersession,
+withdrawal, or rejection. Most sessions should record `No proposal changes
+required.`
+
+If that sibling skill is unavailable, read `.ep-kit` directly as its public
+`key=value` contract (`dir` defaults to `docs/eps`; `validator` is optional),
+follow the installed lifecycle, and perform the same read-only reconciliation.
+Stop on malformed configuration rather than guessing.
+
+Do not mutate proposal lifecycle metadata without explicit project authority.
+When an authorized mutation occurs, update required history and release
+metadata through Strata, then run its configured validator and record the exact
+result.
+
+### 7. Commit doc changes when authorized
+
+When commit authority exists, a `docs(session): close out <date>` commit is a
+reasonable convention. Include:
 
 - The updated session journal.
 - Any `docs/todo.md` changes.
 - Any CHANGELOG entries for shipped work.
 
-### 7. Write the chat-side handoff
+### 8. Write the chat-side handoff
 
 The final response in chat is a compact summary of what the user
 will see when they next open the project. Shape:
@@ -149,7 +163,7 @@ journal; chat is just the pointer.
   `docs(session): <topic> planning` commit is fine; no code
   changes needed.
 - **User wants to dramatically pivot (same session).** Don't
-  close; the session is continuing. Use the session-log skill
+  close; the session is continuing. Use the `cairn-session-log` skill
   to write a pivot marker and keep going.
 - **Session ended because of a blocker.** The handoff should
   explicitly call out the blocker + what the user needs to

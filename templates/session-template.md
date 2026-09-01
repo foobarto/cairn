@@ -20,10 +20,11 @@ User instruction (paraphrased or verbatim if short):
 
 **Task picked:** <one-line description>. <Why this one>.
 
+**Proposal:** <stable reference such as `EP-0017`, or `None`>.
+
 **What shipped:**
 
-- <concrete bullet>; reference [file path](path/to/file.ext) or
-  `file:line` where useful.
+- <concrete bullet>; reference `path/to/file.ext` or `file:line` where useful.
 - Scope that changed mid-implementation (list it honestly).
 
 **Design calls I made without you:**
@@ -32,6 +33,15 @@ User instruction (paraphrased or verbatim if short):
   usually 1-2 sentences on why this option beat the alternatives
   you considered.>
 - **<next call>.** ...
+
+<!--
+  Keep only implementation-local, reversible calls here. If a discovery
+  changes a public contract, persisted representation, trust boundary,
+  load-bearing invariant, materially constrains future implementations, or
+  conflicts with an Accepted/Partial proposal, record the discovery and stop
+  at that boundary. The installed proposal system owns the durable decision
+  and alternatives; cite it here rather than duplicating its Decision Log.
+-->
 
 **Gates:**
 
@@ -47,10 +57,13 @@ User instruction (paraphrased or verbatim if short):
 - <What you chose not to do, and why>.
 - Example: "Full browser E2E skipped — no browser available in
   this environment; if you want it run, do it locally."
-- Example: "Codex review skipped — docs-only diff, marginal
+- Example: "Independent review skipped — docs-only diff, marginal
   value; run on PR if you want the full gate."
 
 **Commit(s):** `<short-sha>` — `<commit subject>`.
+
+**Proposal reconciliation:** <`No proposal changes required`, or status/
+conformance work assessed and any authorized mutation + validator result>.
 
 ---
 
