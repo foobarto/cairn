@@ -70,10 +70,10 @@ Newest-first.
 
 Three to five bullets of cross-cutting context. Examples:
 
-- "An autonomous round is paused on task X; next wakeup was
+- "An autonomous round is paused on task X; the next resume was
   scheduled for <time>."
 - "Commit <sha> is local-only, awaiting review."
-- "Proposal GEP-39 is Placeholder; implementation deferred."
+- "Proposal EP-0039 is Placeholder; implementation deferred."
 ```
 
 ## Rules

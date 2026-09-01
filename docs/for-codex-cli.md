@@ -1,116 +1,54 @@
-# cairn on Codex CLI
+# Cairn on Codex
 
-Codex CLI uses `AGENTS.md` as its project instructions file. cairn's
-templates and skills are Codex-compatible; only the file names
-and invocation style differ from Claude Code.
+## Native plugin installation
 
-## Install
-
-1. Clone cairn:
-
-   ```bash
-   git clone https://github.com/foobarto/cairn ~/tools/cairn
-   ```
-
-2. Scaffold into a project:
-
-   ```bash
-   cd /your/project
-   ~/tools/cairn/install.sh
-   mv CLAUDE.md AGENTS.md
-   ```
-
-3. In `AGENTS.md`, reference the cairn skills as read-and-follow
-   instructions:
-
-   ```markdown
-   ## Session rhythm (cairn)
-
-   Before any working session: read `docs/sessions/` for today's
-   entry (if any), and read `docs/todo.md` for the active punch
-   list.
-
-   When the user asks for a new session log entry or says
-   something worth logging, follow
-   `~/tools/cairn/skills/session-log/SKILL.md` verbatim.
-
-   When the user says "continue autonomously" or similar, follow
-   `~/tools/cairn/skills/autonomous-round/SKILL.md` verbatim —
-   including the hard rules (no pushes without authorisation,
-   no force-pushes, no implementation of Draft proposals, no
-   bypass of safety gates).
-
-   When closing out, follow
-   `~/tools/cairn/skills/close-session/SKILL.md`.
-   ```
-
-## What Codex maps cleanly
-
-- **`AGENTS.md`** ↔ cairn's `CLAUDE.md` template (same shape,
-  different filename).
-- **Codex's tool-use** reads arbitrary local files — the `.md`
-  skill files are directly actionable.
-- **Codex's session persistence** (if using `codex exec` with a
-  session id) pairs well with cairn's per-date journals —
-  consider naming session ids after the journal slug.
-
-## What Codex CLI doesn't have built-in
-
-- Slash commands — emulate by invoking through a shell alias or
-  your shell history. Example:
-
-  ```bash
-  # ~/.bashrc
-  alias cairn-session='codex exec "Follow the cairn session-log skill at \
-    ~/tools/cairn/skills/session-log/SKILL.md to append today'\''s entry"'
-  alias cairn-round='codex exec "Follow the cairn autonomous-round skill at \
-    ~/tools/cairn/skills/autonomous-round/SKILL.md for one cycle"'
-  ```
-
-- Auto-memory — cairn's skills mention "save as memory" for
-  user preferences; Codex has partial memory support via its
-  `memory/` directory. Skills degrade gracefully if memory
-  isn't available.
-
-- Sub-agents — `prior-session-digest` has no direct analog. A
-  `codex exec --model haiku` call with the agent prompt pinned
-  does the same job cheaply.
-
-## Tradeoffs
-
-- **Plus:** `codex exec` from CI is straightforward; cairn's
-  autonomous-round protocol maps cleanly onto scheduled CI
-  runs.
-- **Minus:** No auto-skill-discovery. Every session is slightly
-  more explicit about which skill to apply.
-- **Plus:** Codex's `--sandbox` mode gives cairn the "safe
-  autonomous run" story for free.
-
-## AGENTS.md excerpt
-
-```markdown
-# AGENTS.md
-
-<!-- Keep short. Project-specific detail lives in docs/. -->
-
-## Session rhythm (cairn)
-
-This project uses cairn for session journals, rolling punch list,
-and autonomous rounds. See docs/workflow.md for the shape.
-
-- Session journal: `docs/sessions/<YYYY-MM-DD>-<topic>.md`.
-  Append as you go. See
-  `~/tools/cairn/skills/session-log/SKILL.md`.
-- Rolling punch list: `docs/todo.md`. P0/P1/P2/P3 priorities.
-- Autonomous rounds: `~/tools/cairn/skills/autonomous-round/SKILL.md`.
-  Hard rules: no pushes without authorisation, no force-pushes,
-  no Draft-proposal implementation, no safety-gate bypass.
-- Close-out: `~/tools/cairn/skills/close-session/SKILL.md`.
-
-## Coding discipline
-
-1. Think before coding; state assumptions.
-2. Simplicity first; no speculative abstractions.
-3. Surgical changes; preserve existing style.
-4. Goal-driven execution; loop until verified.
+```bash
+codex plugin marketplace add foobarto/cairn
+codex plugin add cairn@cairn
 ```
+
+The plugin exposes Cairn's canonical Agent Skills. It does not create project
+workflow documents or modify project instructions; use the portable installer
+for that scaffolding.
+
+## Portable project installation
+
+Cairn's portable install defaults to the project entry point Codex uses:
+`AGENTS.md`.
+
+```bash
+git clone https://github.com/foobarto/cairn ~/tools/cairn
+cd /your/project
+~/tools/cairn/install.sh
+```
+
+This writes the workflow files, `AGENTS.md`, and canonical skill packages under
+`.agents/skills/`. Confirm the `cairn-*` skills appear in the current Codex
+surface before relying on automatic activation. If that distribution does not
+discover project `.agents/skills/`, keep the installed packages and reference
+the relevant `SKILL.md` from `AGENTS.md` or install them through the Codex skill
+or plugin mechanism documented by that distribution.
+
+The fallback remains useful because every Cairn skill is plain Markdown and
+self-contained. Canonical paths include:
+
+- `.agents/skills/cairn-session-log/SKILL.md`
+- `.agents/skills/cairn-autonomous-round/SKILL.md`
+- `.agents/skills/cairn-autonomous-loop/SKILL.md`
+- `.agents/skills/cairn-review-phase/SKILL.md`
+
+## Capability mapping
+
+- `AGENTS.md` carries stable project instructions; detailed procedures remain
+  progressively disclosed in skills and `docs/workflow/`.
+- If subagents are available, Cairn can delegate bounded planning or skeptical
+  review. If not, the main agent performs the work and reports the gap.
+- A normal Codex run can complete one autonomous round. A repeated loop needs
+  an actual continued-run, recurring-task, or resume capability; the skill
+  never invents one.
+- Cairn never treats Codex memory as interchangeable with the user profile.
+  Persistent personal writes require explicit authorization.
+
+The Claude-only `commands/` and `agents/` directories are adapters, not
+requirements for Codex use. Codex behavior comes from the canonical `skills/`
+packages referenced by `.codex-plugin/plugin.json`.

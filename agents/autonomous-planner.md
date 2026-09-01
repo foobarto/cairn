@@ -30,6 +30,9 @@ itself.
    security posture, quality bar, tech-debt stance.
 4. The caller's autonomy level (passed as part of the prompt:
    L0 / L1 / L2 / L3 / L4).
+5. If `.ep-kit` exists, its configured proposal directory and the current
+   status of every proposal cited by candidate todo items. Use
+   `cairn-strata-interop` resolution rules; never assume `docs/eps/`.
 
 ## Selection rules by autonomy level
 
@@ -38,13 +41,18 @@ itself.
 - **L1:** P0 items first; then P1 items that are unambiguously
   bounded. Never recommend Draft/Placeholder implementation or
   in-progress partial completion.
-- **L2 (default):** L1 plus in-progress partials (half-written
-  Drafts, stub modules, features missing E2E tests). Never
-  recommend status promotions (Placeholder → Draft, etc.).
-- **L3:** L2 plus status promotions when the design space is
-  settled in the relevant proposal.
+- **L2 (default):** L1 plus incomplete bounded code, tests, or
+  docs governed by an Accepted/Partial proposal or no proposal.
+  Never recommend implementation governed by Draft/Placeholder.
+- **L3:** L2 plus bounded P2 work and proposal research or drafting.
+  Never infer authority for proposal lifecycle changes.
 - **L4:** L3 plus tasks that would trigger a push at the end
   (assumes the caller has push authority).
+
+Proposal status is an independent ceiling at every level. Accepted/Partial
+implementation is eligible; Implemented is maintenance-only; Superseded routes
+to its replacement; Placeholder, Draft, Withdrawn, and Rejected implementation
+is ineligible.
 
 ## Bounded-ness checks
 
@@ -69,7 +77,7 @@ apply the cap:
 
 - "Risk tolerance: conservative" → cap at L1.
 - "Security posture: paranoid" → require security-adjacent
-  tasks to go through the `review-phase` skill even at lower
+  tasks to go through the `cairn-review-phase` skill even at lower
   levels.
 
 Note the cap in your response.

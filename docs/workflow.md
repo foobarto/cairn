@@ -12,7 +12,7 @@ all tracked in git, all in `docs/` by default.
 
 ```
 your-project/
-├── CLAUDE.md                     (or AGENTS.md / GEMINI.md — rename per your CLI)
+├── AGENTS.md                     (or the entry-point filename selected for the client)
 └── docs/
     ├── sessions/                 Detailed runtime log, per-session
     │   ├── 2026-04-24-kanban-ux.md
@@ -22,14 +22,14 @@ your-project/
     │   ├── six-phase-checklist.md
     │   ├── governing-principles.md
     │   └── autonomous-protocol.md
-    └── eps/                      (optional — ep-kit territory)
+    └── <proposal-dir>/           (optional; resolved from `.ep-kit`)
         ├── 0001-ep-purpose-and-guidelines.md
         └── 0002-...
 ```
 
 Each artefact has a specific job. They don't overlap.
 
-### CLAUDE.md / AGENTS.md / GEMINI.md
+### Agent-instructions entry point
 
 Project-level agent instructions. Short (≤ 250 lines is a good
 target), authoritative. Carries:
@@ -60,10 +60,10 @@ go. Per-task entries with standardized sub-sections:
 End of file: explicit *Things I'd like your review* block with
 yes/no questions.
 
-Why detailed: chat contexts rot, commit messages are terse,
-proposals are formal. The session journal captures *what was
-considered and rejected* — the most valuable decision-moment
-detail.
+Why detailed: chat contexts rot, commit messages are terse, and proposals are
+formal. The session journal preserves adopted project rationale, concrete
+evidence, and unresolved questions without reproducing private deliberation or
+conversation transcripts.
 
 Why tracked in git: journals are shared history. Future
 sessions (or colleagues) read them to ground context. Ephemeral
@@ -98,15 +98,25 @@ the same session.
 
 Reference for unattended work (covers both round and loop
 modes). Autonomy levels (L0–L4, default L2), task-pick rules,
-gate requirements, commit checkpoints (3-commit soft pause /
-5-commit hard stop for loops), hard rules (no pushes without
-authorisation, no force-pushes, no Draft-proposal
-implementation below L2, etc.), and stop criteria.
+gate requirements, cycle checkpoints (3-cycle soft pause /
+5-cycle hard stop for loops), hard rules (no pushes without
+authorisation, no force-pushes, no implementation governed by
+Draft/Placeholder proposals without a specific override), and stop criteria.
 
-### docs/eps/ (optional, via ep-kit)
+### Proposal directory (optional, via Strata)
 
-Proposals with decision logs. cairn's templates reference them;
-ep-kit provides them. The two are designed to work together.
+When `.ep-kit` exists, its `dir` value locates proposals; never assume
+`docs/eps/`. Strata owns proposal scope, Decision Logs, relationships,
+lifecycle, and architectural history. Cairn owns executable todo items,
+implementation evidence, journals, review, and handoff. The bridge is stable
+proposal/decision references, not duplicated content.
+
+P3 ideas cross into Strata when they affect a public contract, persisted
+representation, trust boundary, load-bearing invariant, or durable design
+choice. Accepted/Partial proposals cross back into Cairn as user-reviewed,
+bounded P1 tasks that cite their source. During Review and Ship, Cairn checks
+EP conformance and assesses lifecycle truth; proposal mutations remain under
+Strata's authority and validator.
 
 ## The rhythm
 
@@ -116,13 +126,13 @@ A typical session:
    outstanding open questions from recent journals.
 2. **Align.** User states the goal. Agent re-states it in its
    own words if there's any ambiguity.
-3. **Work.** Implement. Run gates. Commit.
+3. **Work.** Implement. Run gates. Commit only when authorized.
 4. **Log.** Append to the session journal after each natural
    seam (task done, commit landed, gate run).
 5. **Decide.** Next task from punch list? Pause for user input?
    End of session?
-6. **Close.** If ending: punch-list update, handoff summary,
-   durable memory saved.
+6. **Close.** If ending: punch-list update and handoff summary;
+   update profiles or memory only when explicitly authorized.
 
 Autonomous rounds slot into step 3–5 and are governed by the
 protocol doc.
@@ -133,7 +143,7 @@ Each plays a role the others can't:
 
 | Artefact         | Time scope       | Audience             | Updated when          |
 |------------------|------------------|----------------------|-----------------------|
-| CLAUDE.md        | Project lifetime | Every session starts | Rarely; stable rules  |
+| Agent instructions | Project lifetime | Every session starts | Rarely; stable rules  |
 | Proposals        | Per-decision     | Long-form reviewers  | Once, then append-only|
 | Session journal  | Per session      | Next session + user  | Continuously during   |
 | `docs/todo.md`   | Per sprint/cycle | Current + near-next  | End of each task      |
@@ -144,9 +154,10 @@ task.
 
 ## Adapting to your project
 
-- **Different naming.** Call proposals RFCs, ADRs, or whatever
-  your team uses. cairn's templates reference ep-kit's "EP"
-  naming but the shape is portable.
+- **Different naming.** Call proposals RFCs, GEPs, or whatever
+  your team uses. Cairn reads `.ep-kit` for storage/prefix configuration and
+  uses Strata's stable `EP-NNNN` / `EP-NNNN D<N>` cross-tool citations; the
+  configured prefix remains the proposal number's frontmatter key.
 - **Different layout.** If your project already has `docs/`
   conventions, fit in around them. Don't force `docs/sessions/`
   if `notes/sessions/` is more natural.
@@ -156,13 +167,13 @@ task.
   they interleave by date filename.
 - **Language/framework.** None of this is language-specific.
   cairn's templates don't mention any build tool, test runner,
-  or framework. The project's `CLAUDE.md` fills those in.
+  or framework. The project's agent-instructions file fills those in.
 
 ## What cairn doesn't solve
 
 - **Test writing.** Your test framework is yours.
-- **Code review tooling.** Codex, Greptile, in-person — use
-  whatever. cairn's journal just expects you to record that
+- **Code review tooling.** Use the project's available local or
+  external reviewer when authorized. Cairn's journal expects you to record that
   review happened in the *Gates* or a dedicated sub-section.
 - **Project management.** Punch list ≠ ticket system. For
   cross-team work, your team's PM tool is the source of truth;

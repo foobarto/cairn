@@ -7,14 +7,14 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 
 Run one bounded **autonomous-round cycle** per cairn's
 `cairn-autonomous-round` skill. Pick a task from `docs/todo.md`,
-implement it, gate it, commit it, update the session journal.
+implement it, gate it, update the session journal, and commit only when
+authorized.
 
 ## Scope
 
-Exactly one task, one commit, one journal entry. If you want to
-run multiple rounds back-to-back, schedule a next wakeup at the
-end of each round — don't chain them in a single `/cairn-round`
-invocation.
+Exactly one task and one journal handoff. Commit only when authorized. For
+multiple serial rounds, use `/cairn-loop`; never schedule or chain another
+round from this command.
 
 ## Steps (at a glance)
 
@@ -28,23 +28,27 @@ Per the autonomous protocol:
    creatable, `docs/todo.md` exists.
 4. **Pick one bounded task.** Dispatch `autonomous-planner`
    sub-agent if available; else scan `docs/todo.md` directly
-   per the autonomy level's rules.
+   per the autonomy level's rules. If `.ep-kit` exists and the item cites a
+   proposal, resolve and enforce its status before selection.
 5. **Announce the pick** in today's session journal with the
    autonomy level.
 6. **Implement.** Log design calls as taken.
-7. **Gate.** Via `review-phase` skill if available (quality +
+7. **Gate.** Via `cairn-review-phase` skill if available (quality +
    security both mandatory); else run the project's tests,
    linter, formatter manually.
-8. **Commit locally** (never push unless L4 + authorised).
+8. **Commit locally when authorized** (never infer push authority).
 9. **Write the handoff summary and stop.** Do NOT schedule a
-   next wakeup — this command is single-cycle only. For
+   new cycle — this command is single-cycle only. For
    repeating cycles, use `/cairn-loop`.
 
 ## Hard rules (ALWAYS)
 
 - No pushes without explicit user authorisation.
 - No force-pushes.
-- No implementation of `Draft` / `Placeholder` proposals.
+- No implementation of `Draft` / `Placeholder` proposals unless a separate,
+  scoped pre-acceptance override explicitly acknowledges the unaccepted status.
+- No implementation from Withdrawn/Rejected proposals; follow Superseded
+  replacements and treat Implemented as maintenance-only.
 - No bypassing safety gates (`--no-verify`, `--no-gpg-sign`).
 - No deleting unfamiliar files/branches.
 - No messages to chat / ticket systems without authorisation.
@@ -52,12 +56,11 @@ Per the autonomous protocol:
 
 ## Stop criteria
 
-Stop (don't schedule next wakeup) if:
+Stop without scheduling another cycle if:
 
 - Blocker beyond your authority (design call, unresolvable
   gate failure, shared-state risk).
 - No bounded task available in `docs/todo.md`.
-- 3rd commit of the session (soft cap) or 5th (hard stop).
 - User message arrived mid-round.
 - Commit failed (hook rejection, compile error).
 

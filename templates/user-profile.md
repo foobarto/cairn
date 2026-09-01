@@ -1,7 +1,7 @@
 ---
 cairn-artifact: user-profile
 version: 1
-scope: global  # global | project-local-gitignored | project-local-tracked
+scope: global  # global | project-local-gitignored
 last-synthesised: YYYY-MM-DD
 ---
 
@@ -14,7 +14,6 @@ last-synthesised: YYYY-MM-DD
   private, cross-project). Other locations supported at
   install time:
     - .cairn/user-profile.md (project-local, gitignored)
-    - docs/user-profiles/<handle>.md (project-local, tracked)
 
   This file is a *synthesis*, not an append-only log. Each entry
   is an observation with evidence. At natural seams, the agent
@@ -87,8 +86,9 @@ When in doubt about whether to interrupt:
 <!--
   Update protocol:
 
-  1. Append new observations under the relevant section as they
-     arise during sessions. Always with evidence.
+  1. Add observations only when the user explicitly asks to record
+     them or has already authorized profile synthesis. Always include
+     evidence; ordinary conversation is not permission to persist it.
   2. At natural seams (session close, monthly, after a big
      project), re-read the whole file. Merge duplicates,
      refine wording, remove observations that turned out wrong

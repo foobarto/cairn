@@ -16,8 +16,8 @@ last-synthesised: YYYY-MM-DD
   architecture stance, risk tolerance, security posture,
   quality bar, contribution norms, tech-debt policy.
 
-  It differs from CLAUDE.md/AGENTS.md/GEMINI.md in role:
-    - CLAUDE.md = operational (commands, file paths, skills).
+  It differs from the project's agent-instructions file in role:
+    - agent instructions = operational (commands, file paths, skills).
     - project-profile = dispositional (stances, values,
       aesthetic calls, tradeoff preferences).
 

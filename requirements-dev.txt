@@ -1,0 +1,4 @@
+PyYAML>=6.0.2,<7
+mypy>=1.18,<2
+skills-ref==0.1.1
+types-PyYAML>=6.0.12,<7

@@ -1,20 +1,17 @@
-# CLAUDE.md (cairn-flavored)
+# Agent instructions (cairn-flavored)
 
 <!--
   This file is a *template* shipped by cairn. It gets copied into
   target projects as-is and then locally customised. If the target
-  project has no CLAUDE.md, install.sh drops this in. If one
+  project has no selected agent-instructions file, install.sh drops
+  this in. If one
   already exists, install.sh leaves it untouched (reports it
-  "skipped") — run the /cairn-init slash command instead to merge
-  cairn's sections into an existing CLAUDE.md.
-
-  Equivalent files for other CLIs: AGENTS.md (Codex CLI),
-  GEMINI.md (Gemini CLI). The substance is identical; rename as
-  your CLI expects.
+  "skipped"). Use --agents-file to select AGENTS.md, CLAUDE.md,
+  GEMINI.md, or another project-relative path your client documents.
 -->
 
-Guidance for Claude Code (and other LLM assistants) working in
-this repository. Kept deliberately short; project-specific detail
+Guidance for AI agents working in this repository. Kept deliberately
+short; project-specific detail
 lives in `docs/`.
 
 ## Governing principles (the backbone)
@@ -51,10 +48,10 @@ Artefacts you should touch every working session:
 
 | When                                       | Update                                                |
 |--------------------------------------------|-------------------------------------------------------|
-| Session start                              | Read today's `docs/sessions/<date>-<topic>.md` if any + `docs/project-profile.md` for stance + user profile for collaboration calibration |
+| Session start                              | Read today's `docs/sessions/<date>-<topic>.md` if any + `docs/project-profile.md` for stance; read a user profile only when its configured path is available and authorized |
 | As you work                                | Append to today's `docs/sessions/<date>-<topic>.md`   |
 | When you notice something worth tracking   | `docs/todo.md` under the appropriate priority tier    |
-| When a stance settles                      | `docs/project-profile.md` (project-wide) / user profile (personal) |
+| When a project stance settles and its update is authorized | `docs/project-profile.md` (project-wide) |
 | When you finish a feature                  | Every doc the change affects (see six-phase checklist)|
 
 ### Session journal (`docs/sessions/<date>-<topic>.md`)
@@ -80,7 +77,7 @@ task entries use this sub-section structure:
   `pnpm typecheck`, etc.) Name the tool; "tests pass" is not enough.
 
 **Skipped / not done this turn:**
-- What you chose not to do, and why. Codex review skipped?
+- What you chose not to do, and why. Independent review skipped?
   E2E not run? Docs not regenerated? Flag it.
 
 **Commit(s):** `<short-sha>` — `<commit message subject>`.
@@ -116,7 +113,7 @@ shipped; delete once it's been in CHANGELOG for a cycle.
 
 Not in todo.md:
 
-- Architectural decisions → see [ep-kit](#proposals-via-ep-kit).
+- Architectural decisions → see [Strata](#proposals-via-strata).
 - Shipped work → CHANGELOG.md.
 - Autonomous-session review notes → session journal.
 - Load-bearing invariants → this file or the project's
@@ -126,8 +123,9 @@ Not in todo.md:
 
 Every non-trivial feature moves through six phases in order:
 
-1. **Spec** — proposal draft (see
-   [`workflow/six-phase-checklist.md`](workflow/six-phase-checklist.md)
+1. **Spec** — classify the change; use an accepted proposal when a durable
+   design decision requires one (see
+   [`docs/workflow/six-phase-checklist.md`](docs/workflow/six-phase-checklist.md)
    for details).
 2. **Plan** — proposal accepted, concrete implementation outline.
 3. **Build** — code + adjacent docs.
@@ -135,7 +133,8 @@ Every non-trivial feature moves through six phases in order:
    manual-test checklist updated.
 5. **Review** — self-review + second opinion (peer, codex,
    etc.).
-6. **Ship** — commit + push, AND every doc the change affects.
+6. **Ship** — verified handoff, authorized commit/push, AND every doc the
+   change affects.
 
 Bug fixes, doc tweaks, and dep bumps collapse 1–2 (no proposal)
 but still move through 3–6.
@@ -152,46 +151,63 @@ When running unattended, pick the shape that matches the ask:
   `cairn-autonomous-loop` skill.
 
 Full substance in
-[`docs/workflow/autonomous-protocol.md`](workflow/autonomous-protocol.md) —
+[`docs/workflow/autonomous-protocol.md`](docs/workflow/autonomous-protocol.md) —
 covers autonomy levels (L0–L4, default L2), task-pick rules,
-gate requirements, commit checkpoints (3-commit soft pause,
-5-commit hard stop in loop mode), and hard rules.
+gate requirements, cycle checkpoints (3-cycle soft pause,
+5-cycle hard stop in loop mode), and hard rules.
 
 First step of every round/loop: **calibrate the autonomy
-level**. L2 is the default (finish in-progress partials; don't
-start greenfield work autonomously; no status promotions; no
-pushes). The project profile's risk tolerance can cap the
+level**. L2 is the default (finish bounded code/tests/docs governed by an
+Accepted/Partial proposal or no proposal; don't start greenfield work
+autonomously; no status promotions; no pushes). The project profile's risk tolerance can cap the
 menu below the user's global preference.
 
 Hard rules (always, every level):
 
 - No pushes unless L4 + explicit authorisation.
 - No force-pushes or rewriting shared history.
+- No implementation governed by a Draft/Placeholder proposal without a
+  specific override that acknowledges its unaccepted status.
 - No bypassing safety gates (`--no-verify`, `--no-gpg-sign`).
 - No deleting unfamiliar files/branches.
 - No messages to chat/ticket systems without authorisation.
-- One task per turn.
+- One task per autonomous cycle.
 
 ### Review phase (always quality + security)
 
 Phase 5 of the six-phase checklist requires both a **quality
-pass** (project gate + linter) and a **security pass** (SAST
-tool if available, manual OWASP review otherwise). Neither is
-optional. If cairn's `cairn-review-phase` skill is available
+pass** and a **security pass** proportional to the actual change. Security
+consideration is mandatory; specific scanners are not. If Cairn's
+`cairn-review-phase` skill is available
 it orchestrates both with tool detection + a
 `review-runner` sub-agent.
 
-## Proposals via ep-kit
+## Proposals via Strata
 
 Non-trivial design changes go through the **proposal** process
-provided by [ep-kit](https://github.com/foobarto/ep-kit) (or
+provided by [Strata](https://github.com/foobarto/strata) (or
 whatever the project named its proposal directory —
 `docs/eps/`, `docs/rfcs/`, `docs/geps/`, …).
+
+If `.ep-kit` exists, it is the public integration contract. Read its `dir`,
+`prefix`, `validator`, and `kit_version` values; never assume `docs/eps/`.
+Cairn owns task execution and journals. Strata owns proposal design, Decision
+Logs, relationships, and lifecycle. Cite stable proposal/decision references
+in Cairn artifacts instead of copying their content.
 
 Touch a proposal when the change affects a public contract,
 on-disk layout, CLI surface, load-bearing invariant, or any
 "should we do X or Y?" question that isn't obvious from the code.
 Skip it for bug fixes, contained refactors, and dep bumps.
+
+Placeholder/Draft/Withdrawn/Rejected do not authorize implementation.
+Accepted/Partial may authorize work within Cairn's autonomy policy;
+Implemented permits maintenance inside the shipped contract; Superseded routes
+to its replacement. Autonomy never overrides status. A separately granted,
+scoped pre-acceptance override may authorize unaccepted work only when it
+explicitly acknowledges that status; it does not accept the proposal. Use the
+`cairn-strata-interop` skill for P3 promotion, Accepted-proposal decomposition,
+EP conformance review, and Ship/close reconciliation.
 
 ## Project-specific notes
 

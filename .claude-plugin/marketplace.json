@@ -11,7 +11,7 @@
     {
       "name": "cairn",
       "source": "./",
-      "description": "Session journals, rolling todo punch list, autonomous-round cadence, six-phase feature checklist, and a review phase. Pairs with ep-kit for structured proposals."
+      "description": "Session journals, rolling todo punch list, autonomous-round cadence, six-phase feature checklist, and a review phase. Pairs with Strata for structured proposals."
     }
   ]
 }

@@ -1,5 +1,5 @@
 ---
-description: Run the autonomous loop — one round, schedule next wakeup, repeat until stop criterion
+description: Run repeated autonomous rounds through an available continuation mechanism until a stop criterion
 allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 ---
 
@@ -7,16 +7,16 @@ allowed-tools: Bash, Read, Write, Edit, Glob, Grep
 
 Run the **autonomous loop** per cairn's `cairn-autonomous-loop`
 skill. Unlike `/cairn-round` (one cycle, stop), the loop keeps
-picking up tasks and scheduling the next wakeup after each one,
+completing serial task cycles through a supported continuation mechanism,
 until a stop criterion is met.
 
 ## Stop criteria
 
 The loop stops on any of:
 
-- **3-commit soft checkpoint** — pause, wait for user approval
+- **3-cycle soft checkpoint** — pause, wait for user approval
   to continue.
-- **5-commit hard stop** — stop unconditionally.
+- **5-cycle hard stop** — stop unconditionally.
 - **Blocker** beyond the agent's authority.
 - **No bounded task** available.
 - **User message** arrives mid-cycle.
@@ -48,12 +48,14 @@ Per cycle:
    task recommendation, or scan `docs/todo.md` directly.
 5. Announce pick in the session journal with level.
 6. Implement; log design calls as taken.
-7. Gate (via `review-phase` skill if available).
-8. Commit locally (never push unless L4 + authorised).
-9. Check commit checkpoint:
-   - 3rd: checkpoint pause, notify user, no wakeup.
+7. Gate (via `cairn-review-phase` skill if available).
+8. Commit locally only when authorized (never push unless L4 + separately
+   authorised).
+9. Check cycle checkpoint:
+   - 3rd: checkpoint pause and notify the user.
    - 5th: hard stop.
-10. Otherwise: schedule next wakeup (20-60 min default).
+10. Otherwise: continue or arrange a resume using a capability the
+    current client actually exposes.
 
 ## Hard rules (ALWAYS)
 
@@ -61,8 +63,10 @@ Inherited from `cairn-autonomous-loop` skill:
 
 - No pushes without L4 + authorisation.
 - No force-pushes.
-- No implementation of Draft/Placeholder proposals except at
-  L2+ for completing in-progress partials.
+- No implementation governed by Draft/Placeholder proposals without
+  a specific override acknowledging that unaccepted status.
+- No implementation from Withdrawn/Rejected proposals; follow Superseded
+  replacements and treat Implemented as maintenance-only.
 - No bypassing safety gates.
 - No deleting unfamiliar files/branches.
 - No messages to chat/ticket systems without authorisation.

@@ -1,108 +1,49 @@
-# cairn on Claude Code
+# Cairn on Claude Code
 
-cairn ships as a native Claude Code plugin. This is the most
-integrated experience — slash commands, skills that the agent
-auto-discovers, and sub-agents.
+Claude Code can load Cairn as a native plugin. The plugin packages the same
+canonical Agent Skills from `skills/` and adds Claude-specific commands and
+subagents.
 
-## Install
+## Install the plugin
 
-### Option A — as a Claude Code plugin (recommended)
+From Claude Code:
+
+```text
+/plugin marketplace add foobarto/cairn
+/plugin install cairn@cairn
+```
+
+For local development, launch `claude --plugin-dir /path/to/cairn`. Do not
+manually copy a checkout into a plugin directory; use the marketplace or
+`--plugin-dir` so Claude validates and loads the package correctly.
+
+Run `claude plugin validate --strict /path/to/cairn` before publishing plugin
+changes. See the current [Claude Code plugin documentation](https://code.claude.com/docs/en/plugins)
+for installation scopes and skill namespacing.
+
+## Scaffold a project
+
+Use `/cairn-init` for the Claude-specific interactive path. It can offer a
+reviewed merge into an existing `CLAUDE.md` and does not duplicate plugin
+skills into the project.
+
+From a shell, the equivalent non-overwriting scaffold is:
 
 ```bash
-# From a git clone:
-git clone https://github.com/foobarto/cairn ~/.claude/plugins/user/cairn
-
-# Or copy from a local checkout:
-cp -r /path/to/cairn ~/.claude/plugins/user/cairn
+/path/to/cairn/install.sh --agents-file CLAUDE.md --no-skills
 ```
 
-Claude Code picks up plugins from `~/.claude/plugins/user/` at
-session start. Verify:
+The two paths intentionally differ when `CLAUDE.md` already exists: the
+command can ask to merge Cairn sections; the shell installer always skips.
 
-```bash
-ls ~/.claude/plugins/user/cairn/.claude-plugin/plugin.json
-```
+## Claude-only adapters
 
-After restarting Claude Code:
-
-- `/cairn-init`, `/cairn-session`, `/cairn-round` slash
-  commands are available.
-- The `cairn-session-log`, `cairn-autonomous-round`, and
-  `cairn-close-session` skills are discoverable.
-- The `prior-session-digest` sub-agent is available.
-
-### Option B — per-project, without plugin install
-
-If you can't or don't want to install a user-level plugin, copy
-cairn into the project:
-
-```bash
-cd /your/project
-cp -r /path/to/cairn/.claude-plugin ./
-cp -r /path/to/cairn/commands ./.claude/commands/
-cp -r /path/to/cairn/skills ./.claude/skills/
-cp -r /path/to/cairn/agents ./.claude/agents/
-```
-
-This is heavier-touch but keeps cairn scoped to the single
-project.
-
-## Per-project scaffolding
-
-Once cairn is installed as a plugin, inside any project:
-
-```
-/cairn-init
-```
-
-This copies the templates into the project's `docs/` directory
-and merges cairn's conventions into the project's `CLAUDE.md`
-(or creates one if none exists).
-
-## Usage reference
-
-| Slash command       | Purpose                                             |
-|---------------------|-----------------------------------------------------|
-| `/cairn-init`       | Scaffold templates into the current project        |
-| `/cairn-session`    | Open or append to today's session journal          |
-| `/cairn-round`      | Run one bounded autonomous-round cycle             |
-
-| Skill                    | When Claude triggers it                         |
-|--------------------------|-------------------------------------------------|
-| `cairn-session-log`      | Any explicit "open / append / close the session log" phrasing or at natural commit seams |
-| `cairn-autonomous-round` | User said "continue autonomously" / "keep going" / "pick something from todo" |
-| `cairn-close-session`    | "That's enough for today" / "let's wrap up" / end-of-session signals |
-
-| Sub-agent                | Use when                                        |
-|--------------------------|-------------------------------------------------|
-| `prior-session-digest`   | Session start — compress recent journals into 800 words without reading full files |
-
-## Interaction with Claude Code's own conventions
-
-- **Memory.** Claude Code's auto-memory at
-  `~/.claude/projects/<slug>/memory/` is a natural fit for
-  cairn's "save user preferences" guidance. The skills
-  explicitly point at it.
-- **Subagents.** `prior-session-digest` is a standard Claude
-  Code sub-agent definition; use via the Agent tool with
-  `subagent_type: "prior-session-digest"`.
-- **Scheduled wakeups.** `/cairn-round` expects to schedule a
-  next wakeup after each round; use `ScheduleWakeup` with
-  the `<<autonomous-loop-dynamic>>` sentinel.
-- **Hooks.** cairn doesn't ship hooks yet. A `SessionStart` or
-  `UserPromptSubmit` hook that auto-opens today's session
-  journal is a candidate enhancement.
-
-## Known gotchas
-
-- **Skill auto-discovery only works for user-level plugins.**
-  If you chose Option B above, skills in `.claude/skills/`
-  are project-scoped and need explicit invocation.
-- **`/cairn-init` is non-destructive by default.** If you want
-  to re-run it after changing cairn's templates, delete the
-  existing files first or merge manually.
-- **Session journal filenames** should use the literal date,
-  not offsets. `date +%Y-%m-%d` in `/cairn-session` uses the
-  host clock — if you're in an unusual timezone and want the
-  "project-local" date, override via `CAIRN_TZ` or similar
-  (not implemented yet; file an issue if this matters).
+- `/cairn-session`, `/cairn-round`, and `/cairn-loop` are thin command
+  adapters over canonical skills.
+- `prior-session-digest`, `autonomous-planner`, and `review-runner` are optional
+  subagents. Canonical skills capability-detect them and degrade honestly.
+- A recurring-task or scheduling capability may resume
+  `cairn-autonomous-loop`; `cairn-autonomous-round` never schedules another
+  cycle.
+- Claude memory is separate from Cairn profiles. Neither may be updated unless
+  the user or standing project instructions authorize that persistence.
